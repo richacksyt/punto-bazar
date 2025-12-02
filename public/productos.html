@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Productos / Stock - Punto Bazar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    :root {
+      --bg-dark: #020617;
+      --bg-card: rgba(15, 23, 42, 0.98);
+      --border-subtle: rgba(148, 163, 184, 0.4);
+      --violeta: #8b5cf6;
+      --texto-claro: #e5e7eb;
+      --texto-muted: #9ca3af;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: var(--texto-claro);
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.8rem 1rem 1.5rem;
+    }
+    h1 {
+      font-size: 1.3rem;
+      margin: 0 0 0.3rem;
+    }
+    p.subtitle {
+      margin: 0 0 0.7rem;
+      font-size: 0.9rem;
+      color: var(--texto-muted);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr);
+      gap: 1rem;
+    }
+    .card {
+      background: var(--bg-card);
+      border-radius: 1rem;
+      border: 1px solid var(--border-subtle);
+      padding: 0.9rem 1rem;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.9);
+    }
+    .card h2 {
+      font-size: 1rem;
+      margin: 0 0 0.4rem;
+    }
+    .card small {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--texto-muted);
+      margin-bottom: 0.6rem;
+    }
+    label {
+      font-size: 0.8rem;
+      color: var(--texto-muted);
+      display: block;
+      margin-bottom: 0.1rem;
+    }
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: #020617;
+      color: var(--texto-claro);
+      padding: 0.4rem 0.6rem;
+      font-size: 0.86rem;
+      margin-bottom: 0.45rem;
+      outline: none;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+      border-color: var(--violeta);
+      box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.6);
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-main {
+      background: linear-gradient(135deg, #4f46e5, #a855f7);
+      color: #fff;
+      box-shadow: 0 14px 32px rgba(88, 80, 236, 0.8);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      color: var(--texto-claro);
+    }
+    .btn-sm {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.78rem;
+    }
+    .status {
+      margin-top: 0.3rem;
+      font-size: 0.78rem;
+      min-height: 1rem;
+    }
+    .status.ok { color: #4ade80; }
+    .status.error { color: #f97373; }
+    .status.info { color: #60a5fa; }
+    .preview-img {
+      margin-top: 0.3rem;
+      width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    th,
+    td {
+      padding: 0.4rem 0.35rem;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      text-align: left;
+    }
+    th {
+      color: var(--texto-muted);
+      font-weight: 500;
+      font-size: 0.78rem;
+    }
+    tbody tr:hover {
+      background: rgba(15, 23, 42, 0.9);
+    }
+    .pill {
+      border-radius: 999px;
+      padding: 0.08rem 0.5rem;
+      font-size: 0.72rem;
+      display: inline-block;
+    }
+    .pill-activo {
+      background: rgba(22, 163, 74, 0.18);
+      color: #4ade80;
+    }
+    .pill-inactivo {
+      background: rgba(127, 29, 29, 0.35);
+      color: #fecaca;
+    }
+    .thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.5rem;
+      object-fit: cover;
+      background: #020617;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+    }
+    @media (max-width: 950px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Productos / stock</h1>
+    <p class="subtitle">
+      Cargá productos nuevos y administrá el stock del catálogo.
+    </p>
+
+    <div class="grid">
+      <!-- FORMULARIO -->
+      <section class="card">
+        <h2 id="form-titulo">Nuevo producto</h2>
+        <small id="form-subtitulo">Completá los datos básicos del producto.</small>
+
+        <input type="hidden" id="prod-id" value="" />
+
+        <label for="nombre">Nombre</label>
+        <input id="nombre" type="text" placeholder="Ej: Termo Stanley 1L" />
+
+        <div class="row">
+          <div>
+            <label for="precio">Precio</label>
+            <input id="precio" type="number" step="0.01" placeholder="Ej: 15000" />
+          </div>
+          <div>
+            <label for="stock">Stock</label>
+            <input id="stock" type="number" placeholder="Ej: 10" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="categoria">Categoría</label>
+            <input id="categoria" type="text" placeholder="Ej: Termos" />
+          </div>
+          <div>
+            <label for="colores">Colores (separados por coma)</label>
+            <input id="colores" type="text" placeholder="Ej: Negro, Blanco, Verde" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="tamanos">Tamaños (separados por coma)</label>
+            <input id="tamanos" type="text" placeholder="Ej: 500ml, 750ml, 1L" />
+          </div>
+          <div>
+            <label for="imagen_url">URL de imagen</label>
+            <input id="imagen_url" type="text" placeholder="/uploads/mi-foto.jpg" />
+          </div>
+        </div>
+
+        <label for="imagen_file">Subir imagen desde la compu</label>
+        <input id="imagen_file" type="file" accept="image/*" style="margin-bottom:0.3rem;" />
+        <button id="btn-subir-imagen" class="btn btn-ghost btn-sm" type="button">
+          Subir y usar en el producto
+        </button>
+
+        <img id="preview" class="preview-img" style="display:none;" alt="Previsualización" />
+
+        <label for="descripcion">Descripción</label>
+        <textarea id="descripcion" placeholder="Texto que verá el cliente en la ficha del producto."></textarea>
+
+        <div style="margin-top:0.4rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+          <button id="btn-guardar" class="btn btn-main" type="button">Guardar producto</button>
+          <button id="btn-limpiar" class="btn btn-ghost btn-sm" type="button">Limpiar formulario</button>
+        </div>
+
+        <div id="status-form" class="status"></div>
+      </section>
+
+      <!-- LISTADO -->
+      <section class="card">
+        <h2>Listado de productos</h2>
+        <small>Hacé clic en “Editar” para cargar los datos en el formulario.</small>
+
+        <div style="overflow:auto; max-height:480px;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Img</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-productos">
+              <tr>
+                <td colspan="8" style="text-align:center; padding:0.6rem; color:var(--texto-muted);">
+                  Cargando productos...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div id="status-lista" class="status"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    var inputId = document.getElementById('prod-id');
+    var inputNombre = document.getElementById('nombre');
+    var inputPrecio = document.getElementById('precio');
+    var inputStock = document.getElementById('stock');
+    var inputCategoria = document.getElementById('categoria');
+    var inputColores = document.getElementById('colores');
+    var inputTamanos = document.getElementById('tamanos');
+    var inputImagenUrl = document.getElementById('imagen_url');
+    var inputImagenFile = document.getElementById('imagen_file');
+    var inputDescripcion = document.getElementById('descripcion');
+    var btnSubirImagen = document.getElementById('btn-subir-imagen');
+    var previewImg = document.getElementById('preview');
+
+    var btnGuardar = document.getElementById('btn-guardar');
+    var btnLimpiar = document.getElementById('btn-limpiar');
+    var statusForm = document.getElementById('status-form');
+    var statusLista = document.getElementById('status-lista');
+    var tablaProductos = document.getElementById('tabla-productos');
+    var formTitulo = document.getElementById('form-titulo');
+    var formSubtitulo = document.getElementById('form-subtitulo');
+
+    var productos = [];
+
+    function setStatusForm(msg, tipo) {
+      statusForm.textContent = msg || '';
+      statusForm.className = 'status ' + (tipo || '');
+    }
+    function setStatusLista(msg, tipo) {
+      statusLista.textContent = msg || '';
+      statusLista.className = 'status ' + (tipo || '');
+    }
+
+    function limpiarFormulario() {
+      inputId.value = '';
+      inputNombre.value = '';
+      inputPrecio.value = '';
+      inputStock.value = '';
+      inputCategoria.value = '';
+      inputColores.value = '';
+      inputTamanos.value = '';
+      inputImagenUrl.value = '';
+      inputDescripcion.value = '';
+      previewImg.style.display = 'none';
+      previewImg.src = '';
+      formTitulo.textContent = 'Nuevo producto';
+      formSubtitulo.textContent = 'Completá los datos básicos del producto.';
+      setStatusForm('', '');
+    }
+
+    function llenarFormulario(prod) {
+      inputId.value = prod.id;
+      inputNombre.value = prod.nombre || '';
+      inputPrecio.value = prod.precio != null ? prod.precio : '';
+      inputStock.value = prod.stock != null ? prod.stock : '';
+      inputCategoria.value = prod.categoria || '';
+      inputColores.value = Array.isArray(prod.colores) ? prod.colores.join(', ') : '';
+      inputTamanos.value = Array.isArray(prod.tamanos) ? prod.tamanos.join(', ') : '';
+      inputImagenUrl.value = prod.imagen_url || '';
+      inputDescripcion.value = prod.descripcion || '';
+      if (prod.imagen_url) {
+        previewImg.src = prod.imagen_url;
+        previewImg.style.display = 'block';
+      } else {
+        previewImg.style.display = 'none';
+      }
+      formTitulo.textContent = 'Editar producto #' + prod.id;
+      formSubtitulo.textContent = 'Modificá los datos y guardá los cambios.';
+      setStatusForm('Estás editando este producto. Guardar va a actualizar los datos.', 'info');
+    }
+
+    function renderTabla() {
+      if (!productos.length) {
+        tablaProductos.innerHTML =
+          '<tr><td colspan="8" style="text-align:center; padding:0.6rem; color:#9ca3af;">Todavía no hay productos cargados.</td></tr>';
+        return;
+      }
+      tablaProductos.innerHTML = productos.map(function (p) {
+        return (
+          '<tr>' +
+            '<td>' + p.id + '</td>' +
+            '<td>' +
+              (p.imagen_url
+                ? '<img src="' + p.imagen_url + '" class="thumb" onerror="this.style.opacity=0.3;">'
+                : '') +
+            '</td>' +
+            '<td>' + (p.nombre || '') + '</td>' +
+            '<td>' + (p.categoria || '') + '</td>' +
+            '<td>$ ' + Number(p.precio || 0).toFixed(2) + '</td>' +
+            '<td>' + (p.stock != null ? p.stock : '') + '</td>' +
+            '<td>' +
+              (p.activo
+                ? '<span class="pill pill-activo">Activo</span>'
+                : '<span class="pill pill-inactivo">Inactivo</span>') +
+            '</td>' +
+            '<td>' +
+              '<button class="btn btn-ghost btn-sm" data-accion="editar" data-id="' + p.id + '">Editar</button> ' +
+              '<button class="btn btn-ghost btn-sm" data-accion="toggle" data-id="' + p.id + '">' +
+                (p.activo ? 'Desactivar' : 'Activar') +
+              '</button>' +
+            '</td>' +
+          '</tr>'
+        );
+      }).join('');
+    }
+
+    function cargarProductos() {
+      setStatusLista('Cargando productos...', 'info');
+      fetch('/api/productos')
+        .then(function (resp) { return resp.json(); })
+        .then(function (data) {
+          productos = Array.isArray(data) ? data : [];
+          renderTabla();
+          setStatusLista('Productos cargados.', 'ok');
+        })
+        .catch(function (e) {
+          console.error(e);
+          setStatusLista('Error cargando productos.', 'error');
+        });
+    }
+
+    btnSubirImagen.addEventListener('click', function () {
+      var file = inputImagenFile.files && inputImagenFile.files[0];
+      if (!file) {
+        setStatusForm('Seleccioná un archivo de imagen primero.', 'error');
+        return;
+      }
+      setStatusForm('Subiendo imagen...', 'info');
+      var fd = new FormData();
+      fd.append('imagen', file);
+      fetch('/api/upload-imagen', {
+        method: 'POST',
+        body: fd
+      })
+        .then(function (resp) { return resp.json(); })
+        .then(function (data) {
+          if (!data.ok || !data.url) {
+            setStatusForm('No se pudo subir la imagen.', 'error');
+            return;
+          }
+          inputImagenUrl.value = data.url;
+          previewImg.src = data.url;
+          previewImg.style.display = 'block';
+          setStatusForm('Imagen subida y asignada al producto.', 'ok');
+        })
+        .catch(function (e) {
+          console.error(e);
+          setStatusForm('Error al subir la imagen.', 'error');
+        });
+    });
+
+    btnGuardar.addEventListener('click', function () {
+      var nombre = inputNombre.value.trim();
+      var precio = inputPrecio.value;
+      if (!nombre || !precio) {
+        setStatusForm('Nombre y precio son obligatorios.', 'error');
+        return;
+      }
+      var payload = {
+        nombre: nombre,
+        precio: precio,
+        stock: inputStock.value,
+        categoria: inputCategoria.value.trim(),
+        colores: inputColores.value,
+        tamanos: inputTamanos.value,
+        imagen_url: inputImagenUrl.value.trim(),
+        descripcion: inputDescripcion.value.trim()
+      };
+      var idExistente = inputId.value;
+      setStatusForm('Guardando producto...', 'info');
+
+      if (idExistente) {
+        fetch('/api/productos/' + idExistente, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function () {
+            setStatusForm('Producto actualizado.', 'ok');
+            cargarProductos();
+          })
+          .catch(function (e) {
+            console.error(e);
+            setStatusForm('Error actualizando producto.', 'error');
+          });
+      } else {
+        fetch('/api/productos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function () {
+            setStatusForm('Producto creado.', 'ok');
+            limpiarFormulario();
+            cargarProductos();
+          })
+          .catch(function (e) {
+            console.error(e);
+            setStatusForm('Error creando producto.', 'error');
+          });
+      }
+    });
+
+    btnLimpiar.addEventListener('click', function () {
+      limpiarFormulario();
+    });
+
+    tablaProductos.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-accion]');
+      if (!btn) return;
+      var accion = btn.getAttribute('data-accion');
+      var id = btn.getAttribute('data-id');
+      if (!id) return;
+
+      if (accion === 'editar') {
+        var prod = productos.find(function (p) { return String(p.id) === String(id); });
+        if (!prod) return;
+        llenarFormulario(prod);
+      }
+      if (accion === 'toggle') {
+        fetch('/api/productos/' + id + '/activo', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function () {
+            setStatusLista('Estado del producto actualizado.', 'ok');
+            cargarProductos();
+          })
+          .catch(function (e) {
+            console.error(e);
+            setStatusLista('Error cambiando estado del producto.', 'error');
+          });
+      }
+    });
+
+    (function init() {
+      cargarProductos();
+    })();
+  </script>
+</body>
+</html>

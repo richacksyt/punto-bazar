@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Panel revendedor - Punto Bazar</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .wrapper {
+      max-width: 1100px;
+      margin: 16px auto 24px;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+    .title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .chip {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 3px 8px;
+      border: 1px solid #4b5563;
+      background: #020617;
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
+      border: 1px solid #1f2937;
+    }
+    .card-title-sm {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .card-main-number {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .card-sub {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .grid-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+      gap: 12px;
+    }
+
+    .list {
+      margin-top: 6px;
+      border-radius: 14px;
+      border: 1px solid #111827;
+      background: #020617;
+      max-height: 260px;
+      overflow: auto;
+      font-size: 12px;
+    }
+    .list-item {
+      padding: 6px 8px;
+      border-bottom: 1px solid #111827;
+    }
+    .list-item:last-child {
+      border-bottom: none;
+    }
+    .list-main {
+      font-weight: 500;
+    }
+    .list-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .quote-box {
+      position: relative;
+      padding: 12px 12px 12px 16px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left,#4c1d95,#020617 60%);
+      border: 1px solid #1f2937;
+      min-height: 80px;
+      overflow: hidden;
+    }
+    .quote-mark {
+      position: absolute;
+      font-size: 56px;
+      color: rgba(148,163,184,0.14);
+      top: -10px;
+      right: 8px;
+    }
+    .quote-text {
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .quote-author {
+      font-size: 11px;
+      color: #c4b5fd;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div>
+        <div class="title">Panel del revendedor</div>
+        <div class="subtitle">Vista ejemplo de cómo se vería el panel personal de cada revendedor.</div>
+      </div>
+      <div class="chip">Demo · Próxima versión</div>
+    </div>
+
+    <!-- Tarjetas de resumen -->
+    <div class="grid-cards">
+      <div class="card">
+        <div class="card-title-sm">Ventas este mes</div>
+        <div class="card-main-number">$ 125.430</div>
+        <div class="card-sub">Total estimado sumando todas tus ventas.</div>
+      </div>
+      <div class="card">
+        <div class="card-title-sm">Comisión estimada</div>
+        <div class="card-main-number">$ 18.814</div>
+        <div class="card-sub">Calculada al 15% sobre tus ventas.</div>
+      </div>
+      <div class="card">
+        <div class="card-title-sm">Clientes activos</div>
+        <div class="card-main-number">23</div>
+        <div class="card-sub">Personas que te compraron al menos 1 vez este mes.</div>
+      </div>
+      <div class="card">
+        <div class="card-title-sm">Premios en camino</div>
+        <div class="card-main-number">2</div>
+        <div class="card-sub">Premios por 5ª compra y referidos pendientes de entregar.</div>
+      </div>
+    </div>
+
+    <div class="grid-bottom">
+      <!-- Izquierda: últimas ventas -->
+      <div class="card">
+        <div class="card-title-sm">Últimas ventas registradas</div>
+        <div class="list">
+          <div class="list-item">
+            <div class="list-main">Pedido hogar deco · $ 8.500</div>
+            <div class="list-meta">02/12 · Cliente: Ana · Comisión: $ 1.275</div>
+          </div>
+          <div class="list-item">
+            <div class="list-main">Combo tazas + frascos · $ 12.900</div>
+            <div class="list-meta">01/12 · Cliente: Juani · Comisión: $ 1.935</div>
+          </div>
+          <div class="list-item">
+            <div class="list-main">Set frascos cocina · $ 6.200</div>
+            <div class="list-meta">30/11 · Cliente: Marta · Comisión: $ 930</div>
+          </div>
+          <div class="list-item">
+            <div class="list-main">Pedido variado bazar · $ 15.400</div>
+            <div class="list-meta">29/11 · Cliente: Carla · Comisión: $ 2.310</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Derecha: frase + próximos objetivos -->
+      <div class="card">
+        <div class="card-title-sm">Frase motivadora del día</div>
+        <div class="quote-box">
+          <div class="quote-mark">“</div>
+          <div id="frase" class="quote-text">
+            Cada mensaje que mandás es una oportunidad nueva de sumar una venta más. No subestimes tus estados.
+          </div>
+          <div id="autor" class="quote-author">Punto Bazar · Equipo</div>
+        </div>
+
+        <div class="card-title-sm" style="margin-top:10px;">Próximos objetivos</div>
+        <div class="list">
+          <div class="list-item">
+            <div class="list-main">5 ventas esta quincena</div>
+            <div class="list-meta">Llevás 3/5 · Te faltan 2 para el próximo premio.</div>
+          </div>
+          <div class="list-item">
+            <div class="list-main">1 referido nuevo</div>
+            <div class="list-meta">Compartí tu catálogo con alguien que quiera revender y sumás comisión extra.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Frases motivadoras rotativas (IA simple)
+    var frases = [
+      {
+        texto: 'Tus estados no molestan: le recuerdan a la gente que puede comprar algo lindo hoy.',
+        autor: 'Punto Bazar'
+      },
+      {
+        texto: 'La diferencia entre el que vende mucho y el que no vende es la constancia, no la suerte.',
+        autor: 'Punto Bazar'
+      },
+      {
+        texto: 'Cada quincena es una hoja nueva. Lo que no salió antes, puede salir ahora.',
+        autor: 'Punto Bazar'
+      }
+    ];
+
+    function elegirFrase() {
+      var idx = Math.floor(Math.random() * frases.length);
+      document.getElementById('frase').textContent = frases[idx].texto;
+      document.getElementById('autor').textContent = frases[idx].autor + ' · Equipo';
+    }
+
+    window.onload = function () {
+      elegirFrase();
+    };
+  </script>
+</body>
+</html>

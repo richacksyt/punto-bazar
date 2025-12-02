@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Punto Bazar - Clientes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#020617 0,#000 70%);
+      color:#e5e7eb;
+    }
+    .wrap{max-width:900px;margin:0 auto;padding:1.2rem;}
+    .title{font-size:1.4rem;font-weight:700;margin-bottom:.2rem;}
+    .subtitle{font-size:.9rem;color:#9ca3af;margin-bottom:1rem;}
+    .grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.2fr);gap:1rem;}
+    .card{
+      background:rgba(15,23,42,0.96);border-radius:1rem;
+      border:1px solid rgba(148,163,184,0.3);
+      padding:1rem 1.1rem;box-shadow:0 18px 45px rgba(15,23,42,0.9);
+    }
+    .label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.15rem;}
+    .input,.textarea{
+      width:100%;border-radius:.7rem;border:1px solid rgba(55,65,81,0.9);
+      background:#020617;color:#e5e7eb;padding:.45rem .6rem;font-size:.9rem;
+      outline:none;
+    }
+    .textarea{min-height:70px;resize:vertical;}
+    .input:focus,.textarea:focus{
+      border-color:#8b5cf6;box-shadow:0 0 0 1px rgba(139,92,246,0.5);
+    }
+    .actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;}
+    .btn{border-radius:999px;border:none;padding:.4rem .85rem;font-size:.8rem;cursor:pointer;}
+    .btn-main{background:linear-gradient(135deg,#4f46e5,#a855f7);color:#fff;}
+    .status{margin-top:.4rem;font-size:.78rem;}
+    .status.ok{color:#4ade80;}
+    .status.error{color:#f97373;}
+    .status.info{color:#60a5fa;}
+    table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:.5rem;}
+    th,td{padding:.35rem .45rem;border-bottom:1px solid rgba(31,41,55,0.9);text-align:left;}
+    th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;background:rgba(15,23,42,0.9);position:sticky;top:0;z-index:1;}
+    .list{max-height:400px;overflow:auto;border-radius:.8rem;border:1px solid rgba(30,64,175,0.5);background:radial-gradient(circle at top,rgba(15,23,42,0.96),rgba(15,23,42,1));padding:.3rem;}
+    @media(max-width:800px){
+      .grid{grid-template-columns:minmax(0,1fr);}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">Clientes</div>
+    <div class="subtitle">Registrá clientes con zona y notas. Se usan también al cargar ventas.</div>
+
+    <div class="grid">
+      <section class="card">
+        <h2 style="font-size:1rem;margin:0 0 .6rem;">Nuevo cliente</h2>
+        <form id="form-cliente">
+          <div>
+            <label class="label" for="nombre">Nombre *</label>
+            <input class="input" id="nombre" placeholder="Nombre y apellido" />
+          </div>
+          <div style="margin-top:.6rem;">
+            <label class="label" for="telefono">Teléfono</label>
+            <input class="input" id="telefono" placeholder="Ej: 3814..." />
+          </div>
+          <div style="margin-top:.6rem;">
+            <label class="label" for="zona">Zona</label>
+            <input class="input" id="zona" placeholder="Ej: Concepción, Yerba Buena..." />
+          </div>
+          <div style="margin-top:.6rem;">
+            <label class="label" for="notas">Notas</label>
+            <textarea class="textarea" id="notas" placeholder="Preferencias, referencias, etc."></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-main">Guardar cliente</button>
+          </div>
+          <div class="status info" id="status-form"></div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2 style="font-size:1rem;margin:0 0 .6rem;">Listado de clientes</h2>
+        <div class="list">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Zona</th>
+                <th>Teléfono</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-clientes">
+              <tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:.5rem;">Cargando clientes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="status info" id="status-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const inputNombre = document.getElementById('nombre');
+    const inputTelefono = document.getElementById('telefono');
+    const inputZona = document.getElementById('zona');
+    const inputNotas = document.getElementById('notas');
+    const statusForm = document.getElementById('status-form');
+    const statusList = document.getElementById('status-list');
+    const tablaClientes = document.getElementById('tabla-clientes');
+
+    let clientes = [];
+
+    function setStatusForm(msg,tipo='info'){ statusForm.textContent=msg; statusForm.className='status '+tipo; }
+    function setStatusList(msg,tipo='info'){ statusList.textContent=msg; statusList.className='status '+tipo; }
+
+    function renderClientes() {
+      if (!clientes.length) {
+        tablaClientes.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#9ca3af;padding:.5rem;">No hay clientes registrados.</td></tr>';
+        return;
+      }
+      tablaClientes.innerHTML = clientes.slice().sort((a,b)=> (a.nombre||'').localeCompare(b.nombre||'')).map(c => `
+        <tr>
+          <td>${c.nombre || ''}</td>
+          <td>${c.zona || ''}</td>
+          <td>${c.telefono || ''}</td>
+          <td>${c.notas || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function cargarClientes() {
+      try {
+        const resp = await fetch('/api/clientes');
+        const data = await resp.json();
+        clientes = Array.isArray(data) ? data : [];
+        renderClientes();
+        setStatusList('Clientes cargados.', 'ok');
+      } catch (e) {
+        console.error(e);
+        setStatusList('Error cargando clientes.', 'error');
+      }
+    }
+
+    document.getElementById('form-cliente').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const nombre = inputNombre.value.trim();
+      const telefono = inputTelefono.value.trim();
+      const zona = inputZona.value.trim();
+      const notas = inputNotas.value.trim();
+
+      if (!nombre) {
+        setStatusForm('El nombre es obligatorio.', 'error');
+        return;
+      }
+
+      try {
+        setStatusForm('Guardando cliente...', 'info');
+        const resp = await fetch('/api/clientes', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ nombre, telefono, zona, notas })
+        });
+        if (!resp.ok) throw new Error('HTTP '+resp.status);
+        const nuevo = await resp.json();
+        clientes.push(nuevo);
+        renderClientes();
+        setStatusForm('Cliente guardado.', 'ok');
+        inputNombre.value = '';
+        inputTelefono.value = '';
+        inputZona.value = '';
+        inputNotas.value = '';
+      } catch (e) {
+        console.error(e);
+        setStatusForm('No se pudo guardar el cliente.', 'error');
+      }
+    });
+
+    cargarClientes();
+  </script>
+</body>
+</html>

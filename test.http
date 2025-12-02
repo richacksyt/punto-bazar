@@ -1,0 +1,11 @@
+### Crear nueva campaña con imagen funcional
+POST http://localhost:3000/api/campanias
+Content-Type: application/json
+
+{
+  "titulo": "Promo del día - Mates y Vasos",
+  "texto_mensaje": "🔥 Buen día equipo revendedor. Acá está la promo de hoy lista para publicar 💚",
+  "texto_estado_sugerido": "Ofertas del día en mates y vasos 🛍️ Consultame!",
+  "imagen_url": "https://i.postimg.cc/Y0Vq8fs6/mate-promo.jpg",
+  "activa": true
+}

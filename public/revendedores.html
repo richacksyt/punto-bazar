@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Revendedores y zonas - Punto Bazar</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .wrapper {
+      max-width: 1100px;
+      margin: 16px auto 24px;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
+      gap: 14px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      border: 1px solid #1f2937;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-bottom: 3px;
+      display: block;
+    }
+    .field-input, .field-select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 13px;
+      padding: 7px 9px;
+      box-sizing: border-box;
+    }
+    .field-input:focus, .field-select:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 1px #8b5cf6;
+    }
+    .btn-primary {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      background: #8b5cf6;
+      color: #f9fafb;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-primary:hover {
+      background: #7c3aed;
+    }
+    .btn-small {
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: transparent;
+      color: #e5e7eb;
+      padding: 4px 9px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-small:hover {
+      background: #111827;
+    }
+
+    .scroll {
+      max-height: 360px;
+      overflow: auto;
+      margin-top: 8px;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    th, td {
+      padding: 6px 6px;
+      border-bottom: 1px solid #1f2937;
+      text-align: left;
+    }
+    th {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      background: #020617;
+      position: sticky;
+      top: 0;
+    }
+    .pill-activo {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(22, 163, 74, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.5);
+    }
+    .pill-inactivo {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: rgba(148, 163, 184, 0.15);
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+    }
+
+    /* Buscador 3D */
+    .search-wrapper {
+      margin-bottom: 6px;
+    }
+    .search-box {
+      position: relative;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #111827, #020617);
+      box-shadow:
+        0 0 0 1px #1f2937,
+        0 10px 25px rgba(15, 23, 42, 0.9),
+        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+    }
+    .search-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: #e5e7eb;
+      padding: 9px 34px 9px 14px;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-input::placeholder {
+      color: #9ca3af;
+    }
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    .search-hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="title">Zonas y revendedores</div>
+    <div class="subtitle">Buscá por nombre, teléfono o localidad y activalos/desactivalos.</div>
+
+    <div class="grid">
+      <!-- Alta revendedor -->
+      <div class="card">
+        <div class="card-title">Nuevo revendedor</div>
+        <div class="card-subtitle">Cargá los datos básicos. Después aparece en ventas y rankings.</div>
+
+        <div>
+          <label class="field-label" for="nombre">Nombre y apellido *</label>
+          <input id="nombre" class="field-input" type="text" />
+        </div>
+        <div style="margin-top:8px;">
+          <label class="field-label" for="telefono">Teléfono</label>
+          <input id="telefono" class="field-input" type="text" />
+        </div>
+        <div style="margin-top:8px;">
+          <label class="field-label" for="zona">Zona / localidad</label>
+          <input id="zona" class="field-input" type="text" />
+        </div>
+        <div style="margin-top:8px;">
+          <label class="field-label" for="whatsapp">Acepta WhatsApp</label>
+          <select id="whatsapp" class="field-select">
+            <option value="true">Sí</option>
+            <option value="false">No</option>
+          </select>
+        </div>
+
+        <button class="btn-primary" onclick="guardarRevendedor()">➕ Agregar revendedor</button>
+        <div id="error" style="font-size:12px;color:#f97373;margin-top:6px;min-height:16px;"></div>
+      </div>
+
+      <!-- Listado + buscador -->
+      <div class="card">
+        <div class="card-title">Revendedores registrados</div>
+        <div class="card-subtitle">Usá el buscador para filtrar por nombre, teléfono o zona.</div>
+
+        <div class="search-wrapper">
+          <div class="search-box">
+            <input id="buscador" class="search-input" type="text"
+                   placeholder="¿Qué estás buscando?"
+                   oninput="filtrarRevendedores()" />
+            <span class="search-icon">🔍</span>
+          </div>
+        </div>
+        <div class="search-hint">
+          Ej: “Ana”, “3815…”, “Concepción”, “Centro”, etc.
+        </div>
+
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Zona</th>
+                <th>WhatsApp</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-revendedores">
+              <tr><td colspan="6">Cargando revendedores...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let revendedores = [];
+    let revendedoresFiltrados = [];
+
+    async function cargarRevendedores() {
+      try {
+        const res = await fetch('/api/revendedores');
+        revendedores = await res.json();
+        revendedoresFiltrados = revendedores.slice();
+        renderTabla();
+      } catch (e) {
+        console.error(e);
+        document.getElementById('tabla-revendedores').innerHTML =
+          '<tr><td colspan="6">Error al cargar revendedores.</td></tr>';
+      }
+    }
+
+    function filtrarRevendedores() {
+      const q = document.getElementById('buscador').value.trim().toLowerCase();
+      if (!q) {
+        revendedoresFiltrados = revendedores.slice();
+      } else {
+        revendedoresFiltrados = revendedores.filter(r => {
+          const texto = (
+            (r.nombre || '') + ' ' +
+            (r.telefono || '') + ' ' +
+            (r.zona || '')
+          ).toLowerCase();
+          return texto.includes(q);
+        });
+      }
+      renderTabla();
+    }
+
+    function renderTabla() {
+      const tbody = document.getElementById('tabla-revendedores');
+      if (!revendedoresFiltrados.length) {
+        tbody.innerHTML = '<tr><td colspan="6">No hay resultados para ese filtro.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '';
+      revendedoresFiltrados.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.nombre}</td>
+          <td>${r.telefono || '-'}</td>
+          <td>${r.zona || '-'}</td>
+          <td>${r.acepta_whatsapp ? 'Sí' : 'No'}</td>
+          <td>${r.activo
+            ? '<span class="pill-activo">Activo</span>'
+            : '<span class="pill-inactivo">Inactivo</span>'}</td>
+          <td>
+            <button class="btn-small" onclick="toggleActivo(${r.id})">
+              ${r.activo ? 'Desactivar' : 'Activar'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function guardarRevendedor() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const telefono = document.getElementById('telefono').value.trim();
+      const zona = document.getElementById('zona').value.trim();
+      const whatsapp = document.getElementById('whatsapp').value;
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+
+      if (!nombre) {
+        errorEl.textContent = 'El nombre es obligatorio.';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/revendedores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre,
+            telefono,
+            zona,
+            acepta_whatsapp: whatsapp === 'true',
+            activo: true
+          })
+        });
+        if (!res.ok) {
+          errorEl.textContent = 'No se pudo guardar el revendedor.';
+          return;
+        }
+        const nuevo = await res.json();
+        revendedores.push(nuevo);
+        filtrarRevendedores();
+
+        document.getElementById('nombre').value = '';
+        document.getElementById('telefono').value = '';
+        document.getElementById('zona').value = '';
+      } catch (e) {
+        console.error(e);
+        errorEl.textContent = 'Error de conexión al guardar.';
+      }
+    }
+
+    async function toggleActivo(id) {
+      try {
+        const res = await fetch(`/api/revendedores/${id}/activo`, { method: 'PATCH' });
+        if (!res.ok) {
+          alert('No se pudo cambiar el estado.');
+          return;
+        }
+        const actualizado = await res.json();
+        const idx = revendedores.findIndex(r => r.id === actualizado.id);
+        if (idx !== -1) revendedores[idx] = actualizado;
+        filtrarRevendedores();
+      } catch (e) {
+        console.error(e);
+        alert('Error de conexión al cambiar estado.');
+      }
+    }
+
+    cargarRevendedores();
+  </script>
+</body>
+</html>

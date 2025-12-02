@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Punto Bazar - Ventas y comisiones</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#020617 0,#000 70%);
+      color:#e5e7eb;
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:1.2rem;}
+    .title{font-size:1.4rem;font-weight:700;margin-bottom:.2rem;}
+    .subtitle{font-size:.9rem;color:#9ca3af;margin-bottom:1rem;}
+    .grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.3fr);gap:1rem;}
+    .card{
+      background:rgba(15,23,42,0.96);border-radius:1rem;
+      border:1px solid rgba(148,163,184,0.3);
+      padding:1rem 1.1rem;box-shadow:0 18px 45px rgba(15,23,42,0.9);
+    }
+    .label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.15rem;}
+    .input,.select,.textarea{
+      width:100%;border-radius:.7rem;border:1px solid rgba(55,65,81,0.9);
+      background:#020617;color:#e5e7eb;padding:.45rem .6rem;font-size:.9rem;
+      outline:none;
+    }
+    .textarea{min-height:70px;resize:vertical;}
+    .input:focus,.select:focus,.textarea:focus{
+      border-color:#8b5cf6;box-shadow:0 0 0 1px rgba(139,92,246,0.5);
+    }
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem .8rem;}
+    .full{grid-column:1/-1;}
+    .actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;}
+    .btn{border-radius:999px;border:none;padding:.4rem .85rem;font-size:.8rem;cursor:pointer;}
+    .btn-main{background:linear-gradient(135deg,#4f46e5,#a855f7);color:#fff;}
+    .btn-ghost{background:transparent;border:1px solid rgba(75,85,99,0.9);color:#e5e7eb;}
+    .status{margin-top:.4rem;font-size:.78rem;}
+    .status.ok{color:#4ade80;}
+    .status.error{color:#f97373;}
+    .status.info{color:#60a5fa;}
+    table{width:100%;border-collapse:collapse;font-size:.8rem;margin-top:.5rem;}
+    th,td{padding:.35rem .45rem;border-bottom:1px solid rgba(31,41,55,0.9);text-align:left;}
+    th{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;background:rgba(15,23,42,0.9);position:sticky;top:0;z-index:1;}
+    .list{max-height:370px;overflow:auto;border-radius:.8rem;border:1px solid rgba(30,64,175,0.5);background:radial-gradient(circle at top,rgba(15,23,42,0.96),rgba(15,23,42,1));padding:.3rem;}
+    .summary-line{font-size:.85rem;margin-top:.3rem;}
+    @media(max-width:900px){
+      .grid{grid-template-columns:minmax(0,1fr);}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">Ventas y comisiones</div>
+    <div class="subtitle">Registrá ventas, descontá stock y obtené resúmenes quincenales por revendedor.</div>
+
+    <div class="grid">
+      <!-- REGISTRO VENTA -->
+      <section class="card">
+        <h2 style="font-size:1rem;margin-top:0;margin-bottom:.6rem;">Registrar venta</h2>
+        <form id="form-venta">
+          <div class="form-grid">
+            <div class="full">
+              <label class="label" for="revendedor">Revendedor</label>
+              <select class="select" id="revendedor">
+                <option value="">Seleccionar...</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="label" for="fecha">Fecha</label>
+              <input class="input" id="fecha" type="date" />
+            </div>
+            <div>
+              <label class="label" for="total">Total vendido</label>
+              <input class="input" id="total" type="number" step="0.01" placeholder="0.00" />
+            </div>
+
+            <div>
+              <label class="label" for="comision">Porcentaje comisión</label>
+              <input class="input" id="comision" type="number" step="0.1" value="15" />
+            </div>
+
+            <div>
+              <label class="label" for="cliente">Cliente (existente)</label>
+              <select class="select" id="cliente">
+                <option value="">Sin seleccionar</option>
+              </select>
+            </div>
+
+            <div class="full">
+              <label class="label" for="cliente-nuevo">o Nuevo cliente</label>
+              <input class="input" id="cliente-nuevo" placeholder="Nombre del nuevo cliente (opcional)" />
+            </div>
+
+            <div>
+              <label class="label" for="producto">Producto principal (para stock)</label>
+              <select class="select" id="producto">
+                <option value="">Sin producto principal</option>
+              </select>
+            </div>
+            <div>
+              <label class="label" for="cantidad-prod">Cantidad producto</label>
+              <input class="input" id="cantidad-prod" type="number" min="0" value="0" />
+            </div>
+
+            <div class="full">
+              <label class="label" for="detalle">Detalle de la venta</label>
+              <textarea class="textarea" id="detalle" placeholder="Qué se vendió, notas, etc."></textarea>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-main">Guardar venta</button>
+          </div>
+
+          <div class="status info" id="status-form"></div>
+        </form>
+
+        <hr style="border:none;border-top:1px solid rgba(31,41,55,0.9);margin:1rem 0 .7rem;">
+
+        <h3 style="font-size:.95rem;margin:0 0 .4rem;">Resumen quincenal</h3>
+        <div class="form-grid">
+          <div>
+            <label class="label" for="res-revendedor">Revendedor</label>
+            <select class="select" id="res-revendedor">
+              <option value="">Todos</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="res-mes">Mes</label>
+            <select class="select" id="res-mes">
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+          </div>
+          <div>
+            <label class="label" for="res-quincena">Quincena</label>
+            <select class="select" id="res-quincena">
+              <option value="1">1ª (1 al 15)</option>
+              <option value="2">2ª (16 al fin)</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:.6rem;">
+          <button class="btn btn-ghost" id="btn-resumen">Calcular resumen</button>
+        </div>
+        <div id="resumen-output" class="status info"></div>
+      </section>
+
+      <!-- LISTADO VENTAS -->
+      <section class="card">
+        <h2 style="font-size:1rem;margin-top:0;margin-bottom:.6rem;">Ventas registradas</h2>
+        <div class="list">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Revendedor</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Comisión</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-ventas">
+              <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:.5rem;">Cargando ventas...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="status info" id="status-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const selRevendedor = document.getElementById('revendedor');
+    const selCliente = document.getElementById('cliente');
+    const selProducto = document.getElementById('producto');
+    const inputFecha = document.getElementById('fecha');
+    const inputTotal = document.getElementById('total');
+    const inputComision = document.getElementById('comision');
+    const inputClienteNuevo = document.getElementById('cliente-nuevo');
+    const inputCantidadProd = document.getElementById('cantidad-prod');
+    const inputDetalle = document.getElementById('detalle');
+    const statusForm = document.getElementById('status-form');
+    const statusList = document.getElementById('status-list');
+    const tablaVentas = document.getElementById('tabla-ventas');
+
+    const selResRevendedor = document.getElementById('res-revendedor');
+    const selResMes = document.getElementById('res-mes');
+    const selResQuincena = document.getElementById('res-quincena');
+    const btnResumen = document.getElementById('btn-resumen');
+    const resumenOutput = document.getElementById('resumen-output');
+
+    let revendedores = [];
+    let clientes = [];
+    let productos = [];
+    let ventas = [];
+
+    function setStatusForm(msg, tipo='info'){ statusForm.textContent=msg; statusForm.className='status '+tipo; }
+    function setStatusList(msg, tipo='info'){ statusList.textContent=msg; statusList.className='status '+tipo; }
+
+    function llenarSelectRevendedores() {
+      const opts = ['<option value="">Seleccionar...</option>']
+      const optsRes = ['<option value="">Todos</option>'];
+      revendedores.forEach(r => {
+        opts.push(`<option value="${r.id}">${r.nombre}</option>`);
+        optsRes.push(`<option value="${r.id}">${r.nombre}</option>`);
+      });
+      selRevendedor.innerHTML = opts.join('');
+      selResRevendedor.innerHTML = optsRes.join('');
+    }
+
+    function llenarSelectClientes() {
+      const opts = ['<option value="">Sin seleccionar</option>'];
+      clientes.forEach(c => {
+        opts.push(`<option value="${c.id}">${c.nombre}</option>`);
+      });
+      selCliente.innerHTML = opts.join('');
+    }
+
+    function llenarSelectProductos() {
+      const opts = ['<option value="">Sin producto principal</option>'];
+      productos.forEach(p => {
+        opts.push(`<option value="${p.id}">${p.nombre} ($${Number(p.precio||0).toFixed(2)})</option>`);
+      });
+      selProducto.innerHTML = opts.join('');
+    }
+
+    function renderVentas() {
+      if (!ventas.length) {
+        tablaVentas.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:.5rem;">No hay ventas registradas.</td></tr>';
+        return;
+      }
+      tablaVentas.innerHTML = ventas.slice().sort((a,b)=> (a.fecha||'').localeCompare(b.fecha||'')).map(v => `
+        <tr>
+          <td>${v.fecha}</td>
+          <td>${v.revendedor_nombre || ''}</td>
+          <td>${v.cliente || ''}</td>
+          <td>$ ${Number(v.total||0).toFixed(2)}</td>
+          <td>$ ${Number(v.comision_calculada||0).toFixed(2)}</td>
+          <td>${v.detalle || ''}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function cargarDatos() {
+      try {
+        const [revRes, cliRes, prodRes, venRes] = await Promise.all([
+          fetch('/api/revendedores'),
+          fetch('/api/clientes'),
+          fetch('/api/productos'),
+          fetch('/api/ventas')
+        ]);
+        revendedores = await revRes.json();
+        clientes = await cliRes.json();
+        productos = await prodRes.json();
+        ventas = await venRes.json();
+
+        llenarSelectRevendedores();
+        llenarSelectClientes();
+        llenarSelectProductos();
+        renderVentas();
+        setStatusList('Ventas cargadas.', 'ok');
+      } catch (e) {
+        console.error(e);
+        setStatusList('Error cargando datos de ventas.', 'error');
+      }
+    }
+
+    // fecha por defecto hoy
+    (function setFechaHoy(){
+      const hoy = new Date();
+      const y = hoy.getFullYear();
+      const m = String(hoy.getMonth()+1).padStart(2,'0');
+      const d = String(hoy.getDate()).padStart(2,'0');
+      inputFecha.value = `${y}-${m}-${d}`;
+      selResMes.value = String(hoy.getMonth()+1);
+    })();
+
+    document.getElementById('form-venta').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setStatusForm('', 'info');
+
+      const revId = selRevendedor.value ? Number(selRevendedor.value) : null;
+      const rev = revendedores.find(r => r.id === revId);
+      const revNombre = rev ? rev.nombre : '';
+
+      const fecha = inputFecha.value || '';
+      const total = inputTotal.value || '0';
+      const comision = inputComision.value || '0';
+
+      const clienteId = selCliente.value ? Number(selCliente.value) : null;
+      const clienteTexto = inputClienteNuevo.value.trim();
+
+      const prodId = selProducto.value ? Number(selProducto.value) : null;
+      const cantProd = Number(inputCantidadProd.value || 0);
+      const detalle = inputDetalle.value.trim();
+
+      if (!revId) {
+        setStatusForm('Seleccioná un revendedor.', 'error');
+        return;
+      }
+      if (!total || Number(total) <= 0) {
+        setStatusForm('Ingresá un total válido.', 'error');
+        return;
+      }
+
+      try {
+        setStatusForm('Guardando venta...', 'info');
+        const resp = await fetch('/api/ventas', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            revendedor_id: revId,
+            revendedor_nombre: revNombre,
+            fecha,
+            total,
+            comision_porcentaje: comision,
+            cliente_id: clienteId,
+            cliente_texto: clienteTexto,
+            producto_id: prodId,
+            cantidad_producto: cantProd,
+            detalle
+          })
+        });
+        if (!resp.ok) throw new Error('HTTP '+resp.status);
+        const nueva = await resp.json();
+        ventas.push(nueva);
+        renderVentas();
+        setStatusForm('Venta registrada correctamente.', 'ok');
+
+        // limpiar algunos campos
+        inputTotal.value = '';
+        inputDetalle.value = '';
+        inputCantidadProd.value = '0';
+        inputClienteNuevo.value = '';
+        selProducto.value = '';
+      } catch (e) {
+        console.error(e);
+        setStatusForm('No se pudo registrar la venta.', 'error');
+      }
+    });
+
+    btnResumen.addEventListener('click', () => {
+      if (!ventas.length) {
+        resumenOutput.textContent = 'No hay ventas para calcular.';
+        resumenOutput.className = 'status info';
+        return;
+      }
+      const revId = selResRevendedor.value ? Number(selResRevendedor.value) : null;
+      const mes = Number(selResMes.value);
+      const q = Number(selResQuincena.value);
+
+      const filtradas = ventas.filter(v => {
+        if (!v.fecha) return false;
+        const [y,m,d] = v.fecha.split('-').map(Number);
+        if (m !== mes) return false;
+        if (q === 1 && !(d >= 1 && d <= 15)) return false;
+        if (q === 2 && !(d >= 16 && d <= 31)) return false;
+        if (revId && v.revendedor_id !== revId) return false;
+        return true;
+      });
+
+      if (!filtradas.length) {
+        resumenOutput.textContent = 'No hay ventas para esos filtros.';
+        resumenOutput.className = 'status info';
+        return;
+      }
+
+      const cantidad = filtradas.length;
+      const totalVendido = filtradas.reduce((acc,v)=> acc + Number(v.total||0), 0);
+      const totalComision = filtradas.reduce((acc,v)=> acc + Number(v.comision_calculada||0), 0);
+
+      const revNombre = revId ? (revendedores.find(r=>r.id===revId)?.nombre || '') : 'Todos';
+
+      resumenOutput.innerHTML =
+        `<div class="summary-line"><strong>Revendedor:</strong> ${revNombre}</div>`+
+        `<div class="summary-line"><strong>Ventas:</strong> ${cantidad}</div>`+
+        `<div class="summary-line"><strong>Total vendido:</strong> $ ${totalVendido.toFixed(2)}</div>`+
+        `<div class="summary-line"><strong>Comisión total:</strong> $ ${totalComision.toFixed(2)}</div>`;
+      resumenOutput.className = 'status ok';
+    });
+
+    cargarDatos();
+  </script>
+</body>
+</html>

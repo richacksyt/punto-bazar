@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Producto - Punto Bazar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: #e5e7eb;
+    }
+    header {
+      position: relative;
+      text-align: center;
+      padding: 1rem 0 0.5rem;
+    }
+    header img {
+      width: 140px;
+      filter: drop-shadow(0 12px 28px rgba(15, 23, 42, 0.9));
+    }
+    .cart-badge {
+      position: absolute;
+      top: 0.7rem;
+      right: 1rem;
+      background: linear-gradient(135deg,#4f46e5,#a855f7);
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(88,80,236,0.9);
+    }
+    .cart-badge span.icon { font-size: 1rem; }
+    .wrap {
+      max-width: 900px;
+      margin: auto;
+      padding: 0.5rem 1rem 1.2rem;
+    }
+    .back {
+      margin-bottom: 0.7rem;
+      background: transparent;
+      border: 1px solid #4b5563;
+      color: #e5e7eb;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .card {
+      display: grid;
+      grid-template-columns: minmax(0,1.1fr) minmax(0,1.4fr);
+      gap: 1rem;
+      background: rgba(15, 23, 42, 0.95);
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+    .img {
+      border-radius: 1rem;
+      overflow: hidden;
+      background: #000;
+      min-height: 260px;
+    }
+    .img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      max-height: 420px;
+    }
+    .name {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .cat {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+    .price {
+      font-size: 1.2rem;
+      margin-top: 0.4rem;
+      color: #c4b5fd;
+    }
+    .stock {
+      font-size: 0.85rem;
+      margin: 0.4rem 0;
+      color: #86efac;
+    }
+    .label {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.4rem;
+      background: #020617;
+      border: 1px solid #4b5563;
+      color: #e5e7eb;
+      border-radius: 6px;
+      margin-top: 0.2rem;
+      font-size: 0.86rem;
+    }
+    select:focus, input[type="number"]:focus {
+      border-color:#8b5cf6;
+      box-shadow:0 0 0 1px rgba(139,92,246,0.5);
+      outline:none;
+    }
+    .actions {
+      margin-top: 0.7rem;
+      display:flex;
+      flex-wrap:wrap;
+      gap:0.5rem;
+    }
+    .btn {
+      padding: 0.45rem 1rem;
+      border-radius: 999px;
+      border:none;
+      cursor:pointer;
+      font-size:0.9rem;
+      display:inline-flex;
+      align-items:center;
+      gap:0.25rem;
+    }
+    .btn-main {
+      background:linear-gradient(135deg,#4f46e5,#a855f7);
+      color:#fff;
+      box-shadow:0 10px 26px rgba(88,80,236,0.9);
+    }
+    .btn-ghost {
+      background:transparent;
+      border:1px solid #4b5563;
+      color:#e5e7eb;
+    }
+    .desc {
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 8px;
+      border: 1px solid #4b5563;
+      line-height: 1.3;
+      font-size:0.9rem;
+    }
+    .status {
+      margin-top:0.4rem;
+      font-size:0.78rem;
+      color:#9ca3af;
+    }
+    @media (max-width: 800px) {
+      .card { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img src="/logo.svg" alt="Punto Bazar" />
+  <div class="cart-badge" onclick="location.href='catalogo.html'">
+    <span class="icon">🛒</span>
+    <span id="cart-count">0</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <button class="back" onclick="history.back()">← Volver</button>
+  <div id="contenido">Cargando producto...</div>
+</div>
+
+<script>
+  // ---- CARRITO GLOBAL (localStorage) ----
+  function cargarCarritoLS() {
+    try { return JSON.parse(localStorage.getItem('pb_carrito') || '[]'); }
+    catch(e){ return []; }
+  }
+  function guardarCarritoLS() {
+    localStorage.setItem('pb_carrito', JSON.stringify(carrito));
+    actualizarBadgeCarrito();
+  }
+  function cantidadTotalCarrito(){
+    return carrito.reduce(function(acc,i){ return acc + i.cantidad;},0);
+  }
+  function actualizarBadgeCarrito(){
+    var badge = document.getElementById('cart-count');
+    if(badge) badge.textContent = cantidadTotalCarrito();
+  }
+
+  let carrito = cargarCarritoLS();
+
+  function getParam(n){
+    return new URL(location.href).searchParams.get(n);
+  }
+
+  let ID = getParam("id");
+  let cont = document.getElementById("contenido");
+  let productoActual = null;
+
+  if(!ID){
+    location.href = "catalogo.html";
+  }
+
+  fetch("/api/productos")
+    .then(r=>r.json())
+    .then(arr=>{
+      let p = arr.find(x => String(x.id) === String(ID));
+      if(!p){
+        cont.innerHTML = "<p style='color:#f87171;text-align:center;'>Producto no encontrado.</p>";
+        return;
+      }
+      productoActual = p;
+      render(p);
+    })
+    .catch(e=>{
+      console.error(e);
+      cont.innerHTML = "<p style='color:#f87171;text-align:center;'>Error cargando el producto.</p>";
+    });
+
+  function render(p){
+    let colores = Array.isArray(p.colores) ? p.colores : [];
+    let tamanos = Array.isArray(p.tamanos) ? p.tamanos : [];
+
+    cont.innerHTML = `
+    <div class="card">
+      <div class="img">
+        ${p.imagen_url ? `<img src="${p.imagen_url}" onerror="this.style.opacity=0.3;">` : ""}
+      </div>
+      <div>
+        <div class="name">${p.nombre || ""}</div>
+        <div class="cat">${p.categoria || ""}</div>
+        <div class="price">$ ${Number(p.precio || 0).toFixed(2)}</div>
+        <div class="stock">
+          ${
+            typeof p.stock === "number"
+              ? (p.stock>0 ? "Stock: "+p.stock : "Sin stock")
+              : ""
+          }
+        </div>
+
+        ${colores.length ? `
+          <div class="label">Color</div>
+          <select id="color">
+            ${colores.map(c=>`<option>${c}</option>`).join("")}
+          </select>
+        ` : ""}
+
+        ${tamanos.length ? `
+          <div class="label">Tamaño</div>
+          <select id="tamano">
+            ${tamanos.map(t=>`<option>${t}</option>`).join("")}
+          </select>
+        ` : ""}
+
+        <div class="label">Cantidad</div>
+        <input type="number" id="cantidad" min="1" value="1">
+
+        <div class="actions">
+          <button class="btn btn-main" id="btn-add">Agregar al carrito</button>
+          <button class="btn btn-ghost" id="btn-wsp">Comprar por WhatsApp</button>
+        </div>
+
+        <div class="desc">
+          ${p.descripcion ? p.descripcion.replace(/\n/g,"<br>") : "Sin descripción por ahora."}
+        </div>
+
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+    `;
+
+    document.getElementById("btn-add").onclick = agregarAlCarritoDetalle;
+    document.getElementById("btn-wsp").onclick = comprarPorWhatsApp;
+    actualizarBadgeCarrito();
+  }
+
+  function agregarAlCarritoDetalle(){
+    if(!productoActual) return;
+    let cant = Number(document.getElementById("cantidad").value || 1);
+    if(isNaN(cant) || cant<=0) cant = 1;
+
+    let existente = carrito.find(i=>i.id === productoActual.id);
+    if(existente){
+      existente.cantidad += cant;
+    } else {
+      carrito.push({
+        id: productoActual.id,
+        nombre: productoActual.nombre,
+        precio: Number(productoActual.precio || 0),
+        cantidad: cant
+      });
+    }
+    guardarCarritoLS();
+    let st = document.getElementById("status");
+    st.textContent = "Producto agregado al carrito (arriba a la derecha).";
+  }
+
+  function comprarPorWhatsApp(){
+    if(!productoActual) return;
+    let cant = Number(document.getElementById("cantidad").value || 1);
+    if(isNaN(cant) || cant<=0) cant = 1;
+    let c = document.getElementById("color")?.value || "";
+    let t = document.getElementById("tamano")?.value || "";
+    let msg = `Hola! Quiero este producto de Punto Bazar:%0A%0A${productoActual.nombre || ""} (ID ${productoActual.id})%0A`;
+    if(c) msg += `Color: ${c}%0A`;
+    if(t) msg += `Tamaño: ${t}%0A`;
+    msg += `Cantidad: ${cant}%0A`;
+    msg += `Precio unitario: $${Number(productoActual.precio || 0).toFixed(2)}%0A`;
+    let total = cant * Number(productoActual.precio || 0);
+    msg += `Total estimado: $${total.toFixed(2)}`;
+    window.open("https://wa.me/543865740218?text="+msg, "_blank");
+  }
+
+  actualizarBadgeCarrito();
+</script>
+
+</body>
+</html>

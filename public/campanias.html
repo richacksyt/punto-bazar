@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Punto Bazar - Campañas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at top,#020617 0,#000 70%);
+      color:#e5e7eb;
+    }
+    .wrap{max-width:1000px;margin:0 auto;padding:1.2rem;}
+    .title{font-size:1.4rem;font-weight:700;margin-bottom:.2rem;}
+    .subtitle{font-size:.9rem;color:#9ca3af;margin-bottom:1rem;}
+    .grid{display:grid;grid-template-columns: minmax(0,1.1fr) minmax(0,1.2fr);gap:1rem;}
+    .card{
+      background:rgba(15,23,42,0.96);border-radius:1rem;
+      border:1px solid rgba(148,163,184,0.3);
+      padding:1rem 1.1rem;box-shadow:0 18px 45px rgba(15,23,42,0.9);
+    }
+    .label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:.15rem;}
+    .input,.textarea{
+      width:100%;border-radius:.7rem;border:1px solid rgba(55,65,81,0.9);
+      background:#020617;color:#e5e7eb;padding:.45rem .6rem;font-size:.9rem;
+      outline:none;
+    }
+    .textarea{min-height:80px;resize:vertical;}
+    .input:focus,.textarea:focus{
+      border-color:#8b5cf6;box-shadow:0 0 0 1px rgba(139,92,246,0.5);
+    }
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem .8rem;}
+    .full{grid-column:1/-1;}
+    .actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem;}
+    .btn{border-radius:999px;border:none;padding:.4rem .85rem;font-size:.8rem;cursor:pointer;}
+    .btn-main{background:linear-gradient(135deg,#4f46e5,#a855f7);color:#fff;}
+    .btn-ghost{background:transparent;border:1px solid rgba(75,85,99,0.9);color:#e5e7eb;}
+    .status{margin-top:.4rem;font-size:.78rem;}
+    .status.ok{color:#4ade80;}
+    .status.error{color:#f97373;}
+    .status.info{color:#60a5fa;}
+    .list{
+      max-height:430px;overflow:auto;border-radius:.85rem;
+      border:1px solid rgba(30,64,175,0.5);
+      background:radial-gradient(circle at top,rgba(15,23,42,0.96),rgba(15,23,42,1));
+      padding:.4rem;
+    }
+    .item{
+      padding:.5rem .5rem;border-bottom:1px solid rgba(31,41,55,0.9);
+      font-size:.85rem;
+    }
+    .item-title{font-weight:600;margin-bottom:.1rem;}
+    .item-meta{font-size:.7rem;color:#9ca3af;margin-bottom:.2rem;}
+    .badge{
+      display:inline-flex;align-items:center;padding:.1rem .5rem;border-radius:999px;
+      font-size:.7rem;
+    }
+    .badge-activa{background:rgba(22,163,74,0.25);color:#4ade80;}
+    .badge-inactiva{background:rgba(148,163,184,0.15);color:#9ca3af;}
+    @media(max-width:850px){
+      .grid{grid-template-columns:minmax(0,1fr);}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="title">Campañas</div>
+    <div class="subtitle">Creá mensajes para estados, historias y flyers. Podés usar la IA para armarlas más rápido (si configuramos la API).</div>
+
+    <div class="grid">
+      <!-- FORM -->
+      <section class="card">
+        <form id="form-campania">
+          <div class="form-grid">
+            <div class="full">
+              <label class="label" for="idea">Idea base (para la IA)</label>
+              <input class="input" id="idea" placeholder="Ej: Promo termos invierno, 2x1, envío gratis..." />
+            </div>
+            <div>
+              <label class="label" for="tipo">Tipo</label>
+              <input class="input" id="tipo" placeholder="Historia, estado, flyer..." />
+            </div>
+            <div>
+              <label class="label" for="tono">Tono</label>
+              <input class="input" id="tono" placeholder="Energico, cariñoso, formal..." />
+            </div>
+
+            <div class="full">
+              <label class="label" for="titulo">Título</label>
+              <input class="input" id="titulo" placeholder="Ej: Termos listos para el invierno" />
+            </div>
+            <div class="full">
+              <label class="label" for="texto">Texto de campaña</label>
+              <textarea class="textarea" id="texto" placeholder="Texto que vas a pegar en WhatsApp, Instagram, etc."></textarea>
+            </div>
+            <div class="full">
+              <label class="label" for="hashtags">Hashtags / cierre</label>
+              <input class="input" id="hashtags" placeholder="#PuntoBazar #Termos #Promo" />
+            </div>
+            <div class="full">
+              <label class="label">
+                <input type="checkbox" id="activa" style="margin-right:.25rem;" /> Marcar como campaña activa
+              </label>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-ghost" id="btn-ia">Generar con IA</button>
+            <button type="submit" class="btn btn-main">Guardar campaña</button>
+          </div>
+          <div class="status info" id="status-form"></div>
+        </form>
+      </section>
+
+      <!-- LISTA -->
+      <section class="card">
+        <div style="margin-bottom:.4rem;font-weight:600;">Campañas cargadas</div>
+        <div class="list" id="lista"></div>
+        <div class="status info" id="status-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('form-campania');
+    const inputIdea = document.getElementById('idea');
+    const inputTipo = document.getElementById('tipo');
+    const inputTono = document.getElementById('tono');
+    const inputTitulo = document.getElementById('titulo');
+    const inputTexto = document.getElementById('texto');
+    const inputHashtags = document.getElementById('hashtags');
+    const inputActiva = document.getElementById('activa');
+    const btnIA = document.getElementById('btn-ia');
+    const statusForm = document.getElementById('status-form');
+    const statusList = document.getElementById('status-list');
+    const listaEl = document.getElementById('lista');
+
+    let campanias = [];
+
+    function setStatusForm(msg, tipo='info'){ statusForm.textContent=msg; statusForm.className='status '+tipo; }
+    function setStatusList(msg, tipo='info'){ statusList.textContent=msg; statusList.className='status '+tipo; }
+
+    function renderLista() {
+      if (!campanias.length) {
+        listaEl.innerHTML = '<div style="text-align:center; padding:.5rem; color:#9ca3af;">Todavía no cargaste campañas.</div>';
+        return;
+      }
+      listaEl.innerHTML = campanias.slice().sort((a,b)=> new Date(b.creada_en||0) - new Date(a.creada_en||0)).map(c => `
+        <div class="item" data-id="${c.id}">
+          <div class="item-title">
+            ${c.titulo || '(Sin título)'}
+            ${c.activa
+              ? '<span class="badge badge-activa" style="margin-left:.3rem;">Activa</span>'
+              : '<span class="badge badge-inactiva" style="margin-left:.3rem;">Inactiva</span>'}
+          </div>
+          <div class="item-meta">
+            ${c.creada_en ? new Date(c.creada_en).toLocaleString() : ''}
+          </div>
+          <div style="white-space:pre-wrap; margin-bottom:.35rem;">${c.texto || ''}</div>
+          <div class="actions" style="margin-top:.35rem;">
+            <button class="btn btn-main" data-accion="activar">Marcar activa</button>
+            <button class="btn btn-ghost" data-accion="borrar">Borrar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function cargarCampanias() {
+      try{
+        setStatusList('Cargando campañas...', 'info');
+        const resp = await fetch('/api/campanias');
+        const data = await resp.json();
+        campanias = Array.isArray(data) ? data : [];
+        renderLista();
+        setStatusList('Campañas actualizadas.', 'ok');
+      }catch(e){
+        console.error(e);
+        setStatusList('Error cargando campañas.', 'error');
+      }
+    }
+
+    btnIA.addEventListener('click', async () => {
+      setStatusForm('La IA está creando una campaña...', 'info');
+      try{
+        const resp = await fetch('/api/ia/campania', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            idea: inputIdea.value.trim(),
+            tipo: inputTipo.value.trim() || 'historias',
+            tono: inputTono.value.trim() || 'energico'
+          })
+        });
+        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        const data = await resp.json();
+        if(!data.ok){
+          setStatusForm('La IA no pudo generar campaña (si no configuraste la API key es normal).', 'error');
+          return;
+        }
+        if(data.titulo) inputTitulo.value = data.titulo;
+        if(data.cuerpo) inputTexto.value = data.cuerpo + (data.cta ? '\n\n' + data.cta : '');
+        if(data.hashtags) inputHashtags.value = data.hashtags;
+        setStatusForm('Campaña sugerida por IA. Podés editar y guardar.', 'ok');
+      }catch(e){
+        console.error(e);
+        setStatusForm('Error llamando a la IA.', 'error');
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titulo = inputTitulo.value.trim();
+      const texto = inputTexto.value.trim();
+      const hashtags = inputHashtags.value.trim();
+      const activa = inputActiva.checked;
+
+      if(!titulo && !texto){
+        setStatusForm('Escribí al menos un título o texto.', 'error');
+        return;
+      }
+
+      try{
+        setStatusForm('Guardando campaña...', 'info');
+        const resp = await fetch('/api/campanias', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ titulo, texto: texto + (hashtags ? '\n\n'+hashtags : ''), activa })
+        });
+        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        await cargarCampanias();
+        setStatusForm('Campaña guardada.', 'ok');
+        form.reset();
+      }catch(e){
+        console.error(e);
+        setStatusForm('No se pudo guardar la campaña.', 'error');
+      }
+    });
+
+    listaEl.addEventListener('click', async (e) => {
+      const btn = e.target.closest('button');
+      if(!btn) return;
+      const accion = btn.getAttribute('data-accion');
+      const item = btn.closest('.item');
+      if(!item) return;
+      const id = item.getAttribute('data-id');
+
+      if(accion === 'activar'){
+        try{
+          const resp = await fetch('/api/campanias/'+id+'/activa', { method:'PATCH' });
+          if(!resp.ok) throw new Error('HTTP '+resp.status);
+          await cargarCampanias();
+          setStatusList('Campaña marcada como activa.', 'ok');
+        }catch(e){
+          console.error(e);
+          setStatusList('No se pudo activar la campaña.', 'error');
+        }
+      }
+      if(accion === 'borrar'){
+        if(!confirm('¿Seguro que querés borrar esta campaña?')) return;
+        try{
+          const resp = await fetch('/api/campanias/'+id, { method:'DELETE' });
+          if(!resp.ok) throw new Error('HTTP '+resp.status);
+          await cargarCampanias();
+          setStatusList('Campaña borrada.', 'ok');
+        }catch(e){
+          console.error(e);
+          setStatusList('No se pudo borrar la campaña.', 'error');
+        }
+      }
+    });
+
+    cargarCampanias();
+  </script>
+</body>
+</html>

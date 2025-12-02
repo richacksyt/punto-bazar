@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vendedores de la quincena - Punto Bazar</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    .wrapper {
+      max-width: 1100px;
+      margin: 16px auto 24px;
+      padding: 0 16px;
+      box-sizing: border-box;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
+      gap: 14px;
+    }
+    .card {
+      background: #020617;
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      border: 1px solid #1f2937;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-bottom: 3px;
+      display: block;
+    }
+    .field-input, .field-select, .field-textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 13px;
+      padding: 7px 9px;
+      box-sizing: border-box;
+    }
+    .field-textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+    .field-input:focus, .field-select:focus, .field-textarea:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 1px #8b5cf6;
+    }
+    .btn-primary {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      background: #8b5cf6;
+      color: #f9fafb;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-primary:hover {
+      background: #7c3aed;
+    }
+    .btn-small {
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: transparent;
+      color: #e5e7eb;
+      padding: 4px 9px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn-small:hover {
+      background: #111827;
+    }
+    .error {
+      font-size: 12px;
+      color: #f97373;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+    .hint {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* Ranking / destacados */
+    .ranking-list {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 9px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left,#1f2937, #020617);
+      border: 1px solid #1f2937;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.9);
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 999px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: radial-gradient(circle at top, #a855f7 0, #4c1d95 55%, #020617 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .ranking-info-main {
+      flex: 1;
+    }
+    .ranking-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .ranking-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .ranking-frase {
+      font-size: 11px;
+      color: #e5e7eb;
+      margin-top: 3px;
+    }
+    .ranking-tag {
+      font-size: 11px;
+      color: #a5b4fc;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="title">Vendedores de la quincena</div>
+    <div class="subtitle">
+      Elegí a tus revendedores destacados, poneles una frase motivadora y usá este panel para sacar captura y compartirla en los grupos 💜
+    </div>
+
+    <div class="grid">
+      <!-- Crear destacado -->
+      <div class="card">
+        <div class="card-title">Crear destacado de la quincena</div>
+        <div class="card-subtitle">
+          Elegí el revendedor, subí una foto (opcional) y escribí una frase para motivar.
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label class="field-label" for="revendedor">Revendedor *</label>
+          <select id="revendedor" class="field-select">
+            <option value="">Seleccionar...</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label class="field-label" for="titulo">Título / etiqueta *</label>
+          <input id="titulo" class="field-input" type="text"
+                 placeholder="Ej: Vendedor de la 1° quincena de diciembre" />
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label class="field-label" for="frase">Frase motivadora *</label>
+          <textarea id="frase" class="field-textarea"
+            placeholder="Ej: Gracias por dejar todo en esta quincena, seguí así que vas por más premios."></textarea>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label class="field-label" for="foto_url">Foto (URL)</label>
+          <input id="foto_url" class="field-input" type="text" placeholder="/uploads/..." />
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <label class="field-label" for="foto_archivo">Subir foto (opcional)</label>
+          <input id="foto_archivo" class="field-input" type="file" accept="image/*" />
+          <button class="btn-small" type="button" onclick="subirFoto()">Subir foto</button>
+        </div>
+
+        <button class="btn-primary" onclick="agregarDestacado()">➕ Agregar al ranking</button>
+        <div id="error" class="error"></div>
+        <div class="hint">
+          Los destacados se guardan mientras la página esté abierta. Para una versión definitiva después lo hacemos con base de datos.
+        </div>
+      </div>
+
+      <!-- Ranking motivacional -->
+      <div class="card">
+        <div class="card-title">Top de la quincena (para compartir)</div>
+        <div class="card-subtitle">
+          Mostrá a los 5 mejores. Podés ordenar a mano agregándolos en el orden que quieras.
+        </div>
+
+        <div id="ranking-list" class="ranking-list">
+          <div style="font-size:12px;color:#9ca3af;">
+            Todavía no agregaste destacados. Cargá el primero a la izquierda.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let revendedores = [];
+    let destacados = [];
+
+    async function cargarRevendedores() {
+      try {
+        const res = await fetch('/api/revendedores');
+        revendedores = await res.json();
+        const select = document.getElementById('revendedor');
+        revendedores.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.textContent = r.nombre + (r.zona ? ' - ' + r.zona : '');
+          select.appendChild(opt);
+        });
+      } catch (e) {
+        console.error(e);
+        document.getElementById('error').textContent =
+          'No se pudieron cargar los revendedores.';
+      }
+    }
+
+    async function subirFoto() {
+      const input = document.getElementById('foto_archivo');
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+
+      if (!input.files || !input.files[0]) {
+        errorEl.textContent = 'Elegí un archivo primero.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('imagen', input.files[0]);
+
+      try {
+        const res = await fetch('/api/upload-imagen', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          errorEl.textContent = data?.mensaje || 'No se pudo subir la foto.';
+          return;
+        }
+        document.getElementById('foto_url').value = data.url;
+        errorEl.textContent = 'Foto subida correctamente.';
+      } catch (e) {
+        console.error(e);
+        errorEl.textContent = 'Error al subir la foto.';
+      }
+    }
+
+    function agregarDestacado() {
+      const revId = document.getElementById('revendedor').value;
+      const titulo = document.getElementById('titulo').value.trim();
+      const frase = document.getElementById('frase').value.trim();
+      const foto_url = document.getElementById('foto_url').value.trim();
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+
+      if (!revId || !titulo || !frase) {
+        errorEl.textContent = 'Revendedor, título y frase son obligatorios.';
+        return;
+      }
+
+      const rev = revendedores.find(r => String(r.id) === String(revId));
+      if (!rev) {
+        errorEl.textContent = 'Revendedor no encontrado.';
+        return;
+      }
+
+      destacados.push({
+        nombre: rev.nombre,
+        zona: rev.zona || '',
+        titulo,
+        frase,
+        foto_url
+      });
+
+      if (destacados.length > 5) {
+        destacados = destacados.slice(destacados.length - 5); // nos quedamos con los últimos 5
+      }
+
+      renderRanking();
+
+      // limpiar un poco el form
+      document.getElementById('titulo').value = '';
+      document.getElementById('frase').value = '';
+      document.getElementById('foto_archivo').value = '';
+    }
+
+    function renderRanking() {
+      const cont = document.getElementById('ranking-list');
+      if (!destacados.length) {
+        cont.innerHTML = '<div style="font-size:12px;color:#9ca3af;">Todavía no agregaste destacados.</div>';
+        return;
+      }
+
+      cont.innerHTML = '';
+      destacados.forEach((d, idx) => {
+        const div = document.createElement('div');
+        div.className = 'ranking-item';
+
+        const iniciales = d.nombre
+          .split(' ')
+          .map(p => p[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase();
+
+        const medallas = ['🥇','🥈','🥉','⭐','⭐'];
+        const medalla = medallas[idx] || '⭐';
+
+        div.innerHTML = `
+          <div class="avatar">
+            ${
+              d.foto_url
+                ? `<img src="${d.foto_url}" alt="${d.nombre}">`
+                : `<span>${iniciales}</span>`
+            }
+          </div>
+          <div class="ranking-info-main">
+            <div class="ranking-name">${medalla} ${d.nombre}
+              ${d.zona ? `<span class="ranking-tag">(${d.zona})</span>` : ''}
+            </div>
+            <div class="ranking-meta">${d.titulo}</div>
+            <div class="ranking-frase">“${d.frase}”</div>
+          </div>
+        `;
+        cont.appendChild(div);
+      });
+    }
+
+    cargarRevendedores();
+  </script>
+</body>
+</html>

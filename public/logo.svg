@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="512"
+  height="512"
+  viewBox="0 0 512 512"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <!-- Definiciones -->
+  <defs>
+    <!-- Fondo gradiente -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4c1d95"/>
+      <stop offset="50%" stop-color="#312e81"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+
+    <!-- Gradiente de la bolsa -->
+    <linearGradient id="bagGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
+    </linearGradient>
+
+    <!-- Sombra suave -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="18" result="blur"/>
+      <feOffset in="blur" dx="0" dy="10" result="offsetBlur"/>
+      <feMerge>
+        <feMergeNode in="offsetBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Glow para texto blanco -->
+    <filter id="textGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Tarjeta redondeada -->
+  <rect
+    x="48"
+    y="48"
+    width="416"
+    height="416"
+    rx="96"
+    ry="96"
+    fill="url(#bgGradient)"
+    filter="url(#softShadow)"
+  />
+
+  <!-- Bolsa feliz -->
+  <g transform="translate(0,-10)">
+    <rect
+      x="156"
+      y="130"
+      width="200"
+      height="200"
+      rx="36"
+      ry="36"
+      fill="url(#bagGradient)"
+      stroke="#d8b4fe"
+      stroke-width="10"
+    />
+
+    <!-- Manija -->
+    <path
+      d="M190 150
+         C190 118 212 96 244 96
+         L268 96
+         C300 96 322 118 322 150"
+      fill="none"
+      stroke="#d8b4fe"
+      stroke-width="12"
+      stroke-linecap="round"
+    />
+
+    <!-- Puntos de la manija -->
+    <circle cx="208" cy="150" r="7" fill="#d8b4fe"/>
+    <circle cx="304" cy="150" r="7" fill="#d8b4fe"/>
+
+    <!-- Carita -->
+    <circle cx="222" cy="210" r="10" fill="#ffffff"/>
+    <circle cx="290" cy="210" r="10" fill="#ffffff"/>
+
+    <!-- Sonrisa -->
+    <path
+      d="M220 242
+         Q256 270 292 242"
+      fill="none"
+      stroke="#ffffff"
+      stroke-width="8"
+      stroke-linecap="round"
+    />
+  </g>
+
+  <!-- Texto Punto Bazar -->
+  <g
+    fill="#ffffff"
+    font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+    font-weight="700"
+    text-anchor="middle"
+    filter="url(#textGlow)"
+  >
+    <text x="256" y="360" font-size="54">Punto</text>
+    <text x="256" y="415" font-size="54">Bazar</text>
+  </g>
+</svg>
