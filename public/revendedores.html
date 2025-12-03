@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Punto Bazar - Panel del revendedor</title>
+  <title>Punto Bazar - Revendedores</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <style>
@@ -16,123 +16,72 @@
     }
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #020617 0, #000 75%);
-      color: var(--texto);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       padding: 1rem;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: transparent;
+      color: var(--texto);
     }
-    .wrap {
-      max-width: 900px;
-      width: 100%;
+    h1 {
+      margin-top: 0;
+      font-size: 1.2rem;
     }
-    .logo {
-      text-align: center;
-      margin-bottom: 0.6rem;
-    }
-    .logo img {
-      width: 140px;
-      filter: drop-shadow(0 14px 36px rgba(15, 23, 42, 0.95));
-    }
-    .grid {
+    .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
       gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     .card {
       background: var(--card);
-      border-radius: 1.1rem;
+      border-radius: 1rem;
       border: 1px solid var(--borde);
       padding: 1rem;
-      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.95);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.95);
     }
-    h1 {
-      margin: 0 0 .4rem;
-      font-size: 1.2rem;
-    }
-    p {
-      margin: 0;
-    }
-    .rev-nombre {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    .rev-zona {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-top: 0.1rem;
-    }
-    .rev-extra {
-      font-size: 0.85rem;
-      margin-top: 0.35rem;
+    label {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
       color: #cbd5e1;
     }
-    .badge-activo {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(74, 222, 128, 0.7);
-      color: #bbf7d0;
-      background: rgba(6, 95, 70, 0.4);
-      font-size: 0.75rem;
-      margin-top: 0.35rem;
-    }
-    .badge-inactivo {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      color: var(--texto);
-      background: rgba(15, 23, 42, 0.9);
-      font-size: 0.75rem;
-      margin-top: 0.35rem;
-    }
-    .fila {
-      margin-top: 0.7rem;
-      font-size: 0.85rem;
-    }
-    .fila-label {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-    .fila-valor {
-      margin-top: 0.15rem;
-      word-break: break-all;
-    }
-    .link-box {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 0.4rem;
-      align-items: center;
-    }
-    .link-input {
-      flex: 1;
-      min-width: 200px;
-      padding: 0.4rem 0.55rem;
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 0.2rem;
+      padding: 0.45rem 0.6rem;
       border-radius: 0.6rem;
-      border: 1px solid rgba(148, 163, 184, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.4);
       background: #020617;
       color: var(--texto);
+      font-size: 0.88rem;
+    }
+    .row-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+    .chk-wrap {
+      margin-top: 0.5rem;
       font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: #cbd5e1;
+    }
+    .chk-wrap input {
+      width: auto;
+      margin-top: 0;
     }
     .btn {
       border-radius: 999px;
       border: none;
-      padding: 0.4rem 0.75rem;
-      font-size: 0.82rem;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
-      white-space: nowrap;
     }
     .btn-main {
       background: linear-gradient(135deg, #4f46e5, #a855f7);
@@ -144,217 +93,330 @@
       border: 1px solid rgba(148, 163, 184, 0.7);
       color: var(--texto);
     }
-    .qr-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
+    .btn-mini {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-danger {
+      background: rgba(248, 113, 113, 0.12);
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.6);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    th, td {
+      padding: 0.4rem 0.3rem;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      text-align: left;
+    }
+    th {
+      background: #020617;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    .tabla-wrap {
+      max-height: 320px;
+      overflow: auto;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(30, 64, 175, 0.7);
       margin-top: 0.4rem;
     }
-    .qr-wrap img {
-      border-radius: 0.75rem;
-      border: 1px solid rgba(30, 64, 175, 0.7);
-      background: #020617;
-      padding: 0.35rem;
+    .estado-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.1rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
     }
-    .tips {
-      font-size: 0.8rem;
-      color: var(--muted);
-      margin-top: 0.6rem;
+    .estado-activo {
+      background: rgba(22, 163, 74, 0.2);
+      color: #bbf7d0;
+      border: 1px solid rgba(22, 163, 74, 0.7);
     }
-    .tips ul {
-      padding-left: 1.1rem;
-      margin: 0.2rem 0 0;
-    }
-    .tips li {
-      margin-bottom: 0.2rem;
+    .estado-inactivo {
+      background: rgba(55, 65, 81, 0.7);
+      color: #e5e7eb;
+      border: 1px solid rgba(75, 85, 99, 0.9);
     }
     .status {
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--muted);
       margin-top: 0.5rem;
-      min-height: 1rem;
+      font-size: 0.8rem;
+      min-height: 1.1rem;
+    }
+    .status-ok {
+      color: #4ade80;
     }
     .status-error {
       color: #f97373;
     }
+    .link-mini {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-block;
+      vertical-align: bottom;
+    }
     @media (max-width: 900px) {
-      body {
-        align-items: flex-start;
-      }
-      .grid {
+      .layout {
         grid-template-columns: minmax(0, 1fr);
       }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="logo">
-      <img src="/logo.svg" alt="Punto Bazar" />
-    </div>
+  <h1>Revendedores</h1>
+  <p style="font-size:.86rem;color:#9ca3af;margin-top:-.4rem;margin-bottom:.8rem;">
+    Registrá tus revendedores, activalos/desactivalos y generá sus links de catálogo y panel.
+  </p>
 
-    <div class="grid">
-      <!-- INFO REVENDEDOR -->
-      <div class="card">
-        <h1>Panel del revendedor</h1>
-        <p style="font-size:.85rem;color:#9ca3af;margin-bottom:.6rem;">
-          Este panel es solo para uso del revendedor. Compartí tu catálogo con tus clientes y sumá ventas.
-        </p>
+  <div class="layout">
+    <!-- FORM ALTA -->
+    <section class="card">
+      <h2 style="margin-top:0;font-size:.98rem;">Nuevo revendedor</h2>
 
-        <div id="rev-info">
-          Cargando datos del revendedor...
+      <label for="r-nombre">Nombre</label>
+      <input id="r-nombre" placeholder="Ej: Ana Gómez" />
+
+      <div class="row-2">
+        <div>
+          <label for="r-telefono">Teléfono (WhatsApp)</label>
+          <input id="r-telefono" placeholder="Ej: 381..." />
         </div>
-
-        <div id="rev-status" class="status"></div>
-      </div>
-
-      <!-- LINK + QR + TIPS -->
-      <div class="card">
-        <h2 style="margin-top:0;font-size:1rem;">Tu link de catálogo</h2>
-        <p style="font-size:.82rem;color:#9ca3af;margin:0 0 .4rem;">
-          Este es el link que tenés que compartir con tus clientes. Todo lo que compren por acá se registra como <strong>tus ventas</strong>.
-        </p>
-
-        <div class="fila">
-          <div class="fila-label">Link personal</div>
-          <div class="link-box">
-            <input id="link-catalogo" class="link-input" readonly value="Cargando..." />
-            <button id="btn-copiar" class="btn btn-main">Copiar link</button>
-            <button id="btn-abrir" class="btn btn-ghost">Abrir catálogo</button>
-          </div>
-        </div>
-
-        <div class="fila">
-          <div class="fila-label">Código QR</div>
-          <div class="qr-wrap">
-            <img id="qr-img" src="" alt="QR catálogo" style="display:none;" />
-            <div style="font-size:.78rem;color:#9ca3af;">
-              Sacá captura o guardá esta imagen para usarla en estados, historias o imprimirla.
-            </div>
-          </div>
-        </div>
-
-        <div class="tips">
-          <div style="font-weight:600;margin-bottom:0.15rem;">Tips para vender más 💸</div>
-          <ul>
-            <li>Enviá tu link a tus mejores contactos con un mensaje personalizado.</li>
-            <li>Subí el QR a tus estados de WhatsApp con un texto tipo: “Catálogo actualizado, hacé tu pedido acá”.</li>
-            <li>Reenviá las ofertas que te pasa Punto Bazar al menos 2 veces por semana.</li>
-            <li>Respondé rápido los mensajes: los clientes que dudan suelen comprar si los atendés al toque.</li>
-          </ul>
+        <div>
+          <label for="r-zona">Zona</label>
+          <input id="r-zona" placeholder="Ej: Centro, Sur, Tucumán" />
         </div>
       </div>
-    </div>
+
+      <div class="chk-wrap">
+        <input type="checkbox" id="r-acepta-wsp" checked />
+        <label for="r-acepta-wsp" style="margin:0;">Acepta pedidos por WhatsApp</label>
+      </div>
+
+      <button id="btn-crear" class="btn btn-main" style="margin-top:.9rem;">
+        Crear revendedor
+      </button>
+
+      <div id="status" class="status"></div>
+    </section>
+
+    <!-- LISTA -->
+    <section class="card">
+      <h2 style="margin-top:0;font-size:.98rem;">Listado</h2>
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre / zona</th>
+              <th>Estado</th>
+              <th>Links</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-body">
+            <tr>
+              <td colspan="5" style="text-align:center;color:#9ca3af;">Cargando revendedores...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:.76rem;color:#9ca3af;margin-top:.5rem;">
+        Tip: pasales el link de <strong>catálogo</strong> y el link del <strong>panel del revendedor</strong>
+        para que empiecen a vender por vos.
+      </p>
+    </section>
   </div>
 
   <script>
-    const revInfoEl = document.getElementById('rev-info');
-    const revStatusEl = document.getElementById('rev-status');
-    const linkCatalogoEl = document.getElementById('link-catalogo');
-    const btnCopiar = document.getElementById('btn-copiar');
-    const btnAbrir = document.getElementById('btn-abrir');
-    const qrImg = document.getElementById('qr-img');
+    const inpNombre = document.getElementById('r-nombre');
+    const inpTelefono = document.getElementById('r-telefono');
+    const inpZona = document.getElementById('r-zona');
+    const chkAcepta = document.getElementById('r-acepta-wsp');
+    const btnCrear = document.getElementById('btn-crear');
+    const statusEl = document.getElementById('status');
+    const tablaBody = document.getElementById('tabla-body');
 
-    let revendedorActual = null;
-    let linkCatalogo = '';
+    let revendedores = [];
 
-    function getRevIdFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get('id');
-      return id ? Number(id) : null;
+    function setStatus(msg, ok) {
+      statusEl.textContent = msg || '';
+      statusEl.className = 'status' + (msg ? (ok ? ' status-ok' : ' status-error') : '');
     }
 
-    function renderRevendedor() {
-      if (!revendedorActual) {
-        revInfoEl.innerHTML = '<div style="color:#f97373;">No se encontró el revendedor.</div>';
-        revStatusEl.textContent = 'Revisá que el link tenga el parámetro ?id= correcto.';
-        revStatusEl.classList.add('status-error');
-        return;
-      }
-
-      const r = revendedorActual;
-      const aceptaWsp = r.acepta_whatsapp ? 'Acepta pedidos por WhatsApp' : 'No usa WhatsApp para pedidos';
-      const telefono = r.telefono ? r.telefono : '(sin teléfono cargado)';
-
-      const estadoHtml = r.activo !== false
-        ? '<span class="badge-activo">Activo · puede recibir pedidos</span>'
-        : '<span class="badge-inactivo">Inactivo · revisar con Punto Bazar</span>';
-
-      revInfoEl.innerHTML = `
-        <div class="rev-nombre">${r.nombre || 'Revendedor sin nombre'}</div>
-        <div class="rev-zona">${r.zona ? 'Zona: ' + r.zona : 'Zona no especificada'}</div>
-        ${estadoHtml}
-        <div class="rev-extra">
-          <div><strong>Teléfono:</strong> ${telefono}</div>
-          <div><strong>WhatsApp:</strong> ${aceptaWsp}</div>
-        </div>
-      `;
+    function formatearLinkCorto(url) {
+      if (!url) return '';
+      if (url.length <= 28) return url;
+      return url.slice(0, 25) + '...';
     }
 
-    function setCatalogLink(baseLink) {
-      linkCatalogo = baseLink;
-      linkCatalogoEl.value = linkCatalogo;
-      // Generar QR
-      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' +
-        encodeURIComponent(linkCatalogo);
-      qrImg.src = qrUrl;
-      qrImg.style.display = 'block';
-    }
+    function cargarRevendedores() {
+      tablaBody.innerHTML =
+        '<tr><td colspan="5" style="text-align:center;color:#9ca3af;">Cargando revendedores...</td></tr>';
 
-    btnCopiar.addEventListener('click', function () {
-      if (!linkCatalogo) return;
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(linkCatalogo)
-          .then(() => {
-            revStatusEl.textContent = 'Link copiado. Pegalo en tus chats o estados.';
-            revStatusEl.classList.remove('status-error');
-          })
-          .catch(() => {
-            revStatusEl.textContent = 'No se pudo copiar automáticamente. Copialo a mano.';
-            revStatusEl.classList.add('status-error');
-          });
-      } else {
-        // Fallback básico
-        linkCatalogoEl.select();
-        revStatusEl.textContent = 'Seleccioné el texto, ahora copiá con Ctrl+C.';
-        revStatusEl.classList.remove('status-error');
-      }
-    });
-
-    btnAbrir.addEventListener('click', function () {
-      if (!linkCatalogo) return;
-      window.open(linkCatalogo, '_blank');
-    });
-
-    (function init() {
-      const id = getRevIdFromURL();
-      if (!id) {
-        revInfoEl.innerHTML = '<div style="color:#f97373;">Link incorrecto. Falta el parámetro ?id= en la URL.</div>';
-        revStatusEl.textContent = 'Pedile a Punto Bazar que te pase tu link correcto.';
-        revStatusEl.classList.add('status-error');
-        return;
-      }
-
-      // Cargar todos los revendedores y buscar el que coincide con el id
       fetch('/api/revendedores')
         .then(r => r.json())
         .then(data => {
-          const lista = Array.isArray(data) ? data : [];
-          revendedorActual = lista.find(r => Number(r.id) === Number(id));
-          renderRevendedor();
-
-          const base = window.location.origin;
-          const link = base + '/catalogo.html?rev=' + encodeURIComponent(id);
-          setCatalogLink(link);
+          revendedores = Array.isArray(data) ? data : [];
+          renderTabla();
         })
-        .catch(err => {
-          console.error(err);
-          revInfoEl.innerHTML = '<div style="color:#f97373;">Error cargando datos del revendedor.</div>';
-          revStatusEl.textContent = 'Probá de nuevo en unos minutos.';
-          revStatusEl.classList.add('status-error');
+        .catch(() => {
+          tablaBody.innerHTML =
+            '<tr><td colspan="5" style="text-align:center;color:#f97373;">Error cargando revendedores.</td></tr>';
         });
+    }
+
+    function renderTabla() {
+      if (!revendedores.length) {
+        tablaBody.innerHTML =
+          '<tr><td colspan="5" style="text-align:center;color:#9ca3af;">Todavía no registraste revendedores.</td></tr>';
+        return;
+      }
+
+      const base = window.location.origin;
+
+      const filas = revendedores.map(r => {
+        const estado = (r.activo !== false);
+        const estadoHtml = estado
+          ? '<span class="estado-pill estado-activo">Activo</span>'
+          : '<span class="estado-pill estado-inactivo">Inactivo</span>';
+
+        const linkCatalogo = base + '/catalogo.html?rev=' + encodeURIComponent(r.id);
+        const linkPanel = base + '/revendedor.html?id=' + encodeURIComponent(r.id);
+
+        return `
+          <tr>
+            <td>${r.id}</td>
+            <td>
+              <div><strong>${r.nombre || 'Sin nombre'}</strong></div>
+              <div style="color:#9ca3af;">${r.zona || ''}</div>
+            </td>
+            <td>${estadoHtml}</td>
+            <td>
+              <div style="margin-bottom:0.2rem;">
+                <span style="font-size:.72rem;color:#9ca3af;">Catálogo</span><br/>
+                <span class="link-mini">${formatearLinkCorto(linkCatalogo)}</span>
+              </div>
+              <div>
+                <span style="font-size:.72rem;color:#9ca3af;">Panel</span><br/>
+                <span class="link-mini">${formatearLinkCorto(linkPanel)}</span>
+              </div>
+            </td>
+            <td>
+              <button class="btn-mini" data-role="copiar-cat" data-id="${r.id}">
+                Copiar catálogo
+              </button><br/>
+              <button class="btn-mini" data-role="panel" data-id="${r.id}" style="margin-top:.25rem;">
+                Abrir panel
+              </button><br/>
+              <button class="btn-mini" data-role="toggle" data-id="${r.id}" style="margin-top:.25rem;">
+                ${estado ? 'Desactivar' : 'Activar'}
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tablaBody.innerHTML = filas;
+    }
+
+    btnCrear.addEventListener('click', () => {
+      const nombre = inpNombre.value.trim();
+      const telefono = inpTelefono.value.trim();
+      const zona = inpZona.value.trim();
+      const acepta = !!chkAcepta.checked;
+
+      if (!nombre) {
+        setStatus('El nombre es obligatorio.', false);
+        return;
+      }
+
+      setStatus('Creando revendedor...', true);
+
+      fetch('/api/revendedores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          telefono,
+          zona,
+          acepta_whatsapp: acepta
+        })
+      })
+        .then(r => r.json())
+        .then(() => {
+          setStatus('Revendedor creado correctamente.', true);
+          inpNombre.value = '';
+          inpTelefono.value = '';
+          inpZona.value = '';
+          chkAcepta.checked = true;
+          cargarRevendedores();
+        })
+        .catch(() => {
+          setStatus('Error al crear revendedor.', false);
+        });
+    });
+
+    tablaBody.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role]');
+      if (!btn) return;
+      const id = Number(btn.getAttribute('data-id'));
+      const role = btn.getAttribute('data-role');
+      if (!id) return;
+
+      const base = window.location.origin;
+      const linkCatalogo = base + '/catalogo.html?rev=' + encodeURIComponent(id);
+      const linkPanel = base + '/revendedor.html?id=' + encodeURIComponent(id);
+
+      if (role === 'copiar-cat') {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(linkCatalogo)
+            .then(() => setStatus('Link de catálogo copiado.', true))
+            .catch(() => setStatus('No se pudo copiar automáticamente.', false));
+        } else {
+          setStatus('Copiá este link: ' + linkCatalogo, false);
+        }
+        return;
+      }
+
+      if (role === 'panel') {
+        window.open(linkPanel, '_blank');
+        return;
+      }
+
+      if (role === 'toggle') {
+        // cambiar activo
+        const rev = revendedores.find(r => Number(r.id) === id);
+        const nuevoEstado = !(rev && rev.activo !== false);
+
+        fetch('/api/revendedores/' + id + '/activo', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activo: nuevoEstado })
+        })
+          .then(r => r.json())
+          .then(() => {
+            setStatus('Estado actualizado.', true);
+            cargarRevendedores();
+          })
+          .catch(() => {
+            setStatus('Error al cambiar estado.', false);
+          });
+      }
+    });
+
+    (function init() {
+      cargarRevendedores();
     })();
   </script>
 </body>
