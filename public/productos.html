@@ -2,353 +2,1311 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Punto Bazar - Productos</title>
+  <title>Punto Bazar - Productos y stock</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <style>
+    :root {
+      --bg: #020617;
+      --card: rgba(15, 23, 42, 0.98);
+      --card-soft: rgba(15, 23, 42, 0.9);
+      --borde: rgba(148, 163, 184, 0.45);
+      --borde-fuerte: rgba(59, 130, 246, 0.9);
+      --texto: #e5e7eb;
+      --muted: #9ca3af;
+      --violeta: #8b5cf6;
+      --violeta2: #4f46e5;
+      --rojo: #f97373;
+      --verde: #4ade80;
+      --amarillo: #facc15;
+    }
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       padding: 1rem;
-      font-family: system-ui, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: var(--texto);
     }
     h1 {
-      margin-top: 0;
+      margin: 0 0 0.3rem;
+      font-size: 1.3rem;
+    }
+    p {
+      margin: 0;
+    }
+    .page-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+    .top-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pill {
+      font-size: 0.78rem;
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,1));
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Layout principal */
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+      gap: 0.9rem;
     }
     .card {
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: var(--card);
       border-radius: 1rem;
-      padding: 1rem;
-      margin-bottom: 1.5rem;
+      border: 1px solid var(--borde);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.95);
+      padding: 0.9rem;
     }
-    label {
-      display: block;
-      margin-top: 0.7rem;
-      font-size: 0.85rem;
-      color: #cbd5e1;
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
     }
-    input, textarea {
+    .card-title {
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+    .card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+    .stat-card {
+      background: var(--card-soft);
+      border-radius: 0.9rem;
+      border: 1px solid rgba(30, 64, 175, 0.8);
+      padding: 0.5rem 0.6rem;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .stat-label {
+      color: var(--muted);
+    }
+    .stat-value {
+      font-size: 0.98rem;
+      font-weight: 600;
+    }
+    .chip-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      color: var(--muted);
+    }
+    .chip-mini.ok {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: #bbf7d0;
+    }
+    .chip-mini.warn {
+      border-color: rgba(250, 204, 21, 0.7);
+      color: #fef3c7;
+    }
+
+    /* Filtros y buscador */
+    .filter-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+      align-items: center;
+    }
+    .filter-bar input[type="text"], .filter-bar select {
       width: 100%;
-      padding: 0.45rem 0.6rem;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(148,163,184,0.4);
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
       background: #020617;
-      color: #e5e7eb;
-      margin-top: 0.25rem;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      color: var(--texto);
     }
-    button {
-      margin-top: 0.8rem;
-      padding: 0.55rem 0.9rem;
-      border-radius: 0.6rem;
+    .filter-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .view-toggle {
+      display: inline-flex;
+      border-radius: 999px;
+      border: 1px solid rgba(75,85,99,0.9);
+      overflow: hidden;
+    }
+    .view-toggle button {
       border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.78rem;
+      padding: 0.25rem 0.55rem;
       cursor: pointer;
-      font-size: 0.9rem;
     }
-    .btn-main {
+    .view-toggle button.active {
       background: linear-gradient(135deg, #4f46e5, #a855f7);
       color: white;
     }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid #64748b;
-      color: #e5e7eb;
+
+    /* Tabla de productos */
+    .table-wrap {
+      border-radius: 0.8rem;
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      overflow: hidden;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,1));
+      max-height: 460px;
+      display: flex;
+      flex-direction: column;
     }
     table {
-      width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
-      font-size: 0.9rem;
+      width: 100%;
+      font-size: 0.78rem;
     }
     th, td {
-      padding: 0.6rem;
-      border-bottom: 1px solid rgba(148,163,184,0.2);
+      padding: 0.45rem 0.4rem;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.6);
+      text-align: left;
+      vertical-align: middle;
     }
     th {
-      text-align: left;
-      background: #1e293b;
+      position: sticky;
+      top: 0;
+      background: #020617;
+      z-index: 1;
     }
-    tr:hover {
-      background: rgba(51,65,85,0.3);
+    tbody {
+      display: block;
+      overflow-y: auto;
+      max-height: 420px;
     }
-    img.thumb {
-      width: 55px;
-      height: 55px;
-      object-fit: cover;
-      border-radius: 0.4rem;
-      border: 1px solid rgba(148,163,184,0.3);
+    thead, tbody tr {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.12s ease;
+    }
+    tbody tr:hover {
+      background: rgba(30, 64, 175, 0.35);
+    }
+    tbody tr.selected {
+      background: rgba(79, 70, 229, 0.55);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.12rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+    }
+    .badge-activo {
+      border-color: rgba(74, 222, 128, 0.7);
+      color: #bbf7d0;
+      background: rgba(6, 95, 70, 0.4);
+    }
+    .badge-inactivo {
+      border-color: rgba(148,163,184,0.8);
+      color: var(--muted);
+      background: rgba(15,23,42,0.9);
+    }
+    .badge-oferta {
+      border-color: rgba(249, 115, 22, 0.9);
+      color: #fed7aa;
+      background: rgba(124, 45, 18, 0.6);
+    }
+    .stock-ok {
+      color: var(--verde);
+    }
+    .stock-bajo {
+      color: var(--amarillo);
+    }
+    .stock-cero {
+      color: var(--rojo);
+    }
+
+    /* Editor de producto */
+    .editor-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+      gap: 0.6rem;
+    }
+    .field {
+      margin-bottom: 0.45rem;
+    }
+    .field label {
+      display: block;
+      font-size: 0.76rem;
+      color: #cbd5e1;
+      margin-bottom: 0.15rem;
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(75, 85, 99, 0.95);
+      background: #020617;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.84rem;
+      color: var(--texto);
+      resize: vertical;
+    }
+    .field small {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+    .two-cols {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 0.4rem;
+    }
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.4rem 0.85rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      white-space: nowrap;
+    }
+    .btn-main {
+      background: linear-gradient(135deg, #4f46e5, #a855f7);
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(88, 80, 236, 0.9);
+    }
+    .btn-soft {
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(75,85,99,0.9);
+      color: var(--texto);
+    }
+    .btn-danger {
+      background: rgba(127, 29, 29, 0.9);
+      border: 1px solid rgba(248, 113, 113, 0.9);
+      color: #fee2e2;
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(75, 85, 99, 0.95);
+      color: var(--muted);
+    }
+    .img-preview-wrap {
+      background: radial-gradient(circle at top, #020617, #000);
+      border-radius: 0.9rem;
+      border: 1px dashed rgba(75,85,99,0.9);
+      padding: 0.6rem;
+      text-align: center;
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+    .img-preview-wrap img {
+      max-width: 100%;
+      max-height: 180px;
+      border-radius: 0.7rem;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 0.4rem;
+      background: #020617;
+    }
+    .pill-oferta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.14rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(249, 115, 22, 0.9);
+      color: #fed7aa;
+      background: rgba(124, 45, 18, 0.6);
+      font-size: 0.72rem;
+      margin-top: 0.25rem;
+    }
+    .status-bar {
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      min-height: 1.1rem;
     }
     .status-ok {
-      color: #4ade80;
-      font-size: 0.85rem;
-      margin-top: 0.35rem;
+      color: var(--verde);
     }
     .status-error {
-      color: #f87171;
-      font-size: 0.85rem;
-      margin-top: 0.35rem;
+      color: var(--rojo);
     }
-    .row-inline {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.4rem;
-      font-size: 0.85rem;
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    @media (max-width: 800px) {
+      body {
+        padding: 0.6rem;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+      .editor-layout {
+        grid-template-columns: minmax(0,1fr);
+      }
+      .filter-bar {
+        grid-template-columns: minmax(0,1fr);
+      }
     }
   </style>
 </head>
 <body>
-
-  <h1>Productos / Stock</h1>
-
-  <!-- FORMULARIO -->
-  <div class="card">
-    <h2 id="form-titulo">Nuevo producto</h2>
-
-    <label>Nombre</label>
-    <input id="p-nombre" />
-
-    <label>Precio</label>
-    <input id="p-precio" type="number" />
-
-    <label>Stock</label>
-    <input id="p-stock" type="number" />
-
-    <label>Categoría</label>
-    <input id="p-categoria" />
-
-    <label>Colores (separados por coma)</label>
-    <input id="p-colores" placeholder="Rojo, Azul, Negro" />
-
-    <label>Tamaños (separados por coma)</label>
-    <input id="p-tamanos" placeholder="500ml, 1L" />
-
-    <label>URL de imagen</label>
-    <input id="p-imagen_url" />
-
-    <label>Subir imagen desde la compu</label>
-    <input type="file" id="file-imagen" accept="image/*" />
-
-    <button class="btn-main" id="btn-subir">
-      Subir y usar en el producto
-    </button>
-
-    <div id="status-imagen"></div>
-
-    <!-- 🔥 OFERTA -->
-    <div class="row-inline">
-      <input type="checkbox" id="p-oferta-activa" />
-      <label for="p-oferta-activa" style="margin-top:0;">Marcar como oferta del día</label>
+  <div class="page-wrap">
+    <div class="top-row">
+      <div>
+        <h1>Productos / Stock</h1>
+        <p style="font-size:.86rem;color:var(--muted);">
+          Acá controlás todo el catálogo: precios, stock, imágenes y ofertas. Lo que cambies se refleja en el catálogo público.
+        </p>
+      </div>
+      <div class="pill">
+        <span>📦</span>
+        <span>Punto Bazar · Backoffice PRO</span>
+      </div>
     </div>
 
-    <label>Texto de oferta</label>
-    <input id="p-oferta-texto" placeholder="Ej: 10% OFF, 2x1, Regalo sorpresa" />
+    <!-- STATS -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Resumen rápido</div>
+          <div class="card-sub">Visión general del stock y el catálogo.</div>
+        </div>
+        <button id="btn-recargar" class="btn btn-ghost">Recargar datos</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Productos totales</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="chip-mini" id="stat-categorias">0 categorías</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Activos en catálogo</div>
+          <div class="stat-value" id="stat-activos">0</div>
+          <div class="chip-mini ok" id="stat-oferta">0 en oferta</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Stock</div>
+          <div class="stat-value" id="stat-stock-total">0</div>
+          <div class="chip-mini warn" id="stat-stock-bajo">0 bajos / 0 sin stock</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Valor del stock</div>
+          <div class="stat-value" id="stat-valor">$ 0.00</div>
+          <div class="chip-mini" id="stat-ticket">
+            Ticket promedio: $0.00
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <label>Descripción</label>
-    <textarea id="p-descripcion" rows="3"></textarea>
+    <div class="layout">
+      <!-- LISTA DE PRODUCTOS -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Listado de productos</div>
+            <div class="card-sub">Hacé clic en un producto para editarlo del lado derecho.</div>
+          </div>
+          <button id="btn-nuevo" class="btn btn-main">+ Nuevo producto</button>
+        </div>
 
-    <button class="btn-main" id="btn-guardar">Guardar producto</button>
-    <button class="btn-ghost" id="btn-limpiar">Limpiar formulario</button>
+        <div class="filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">Buscar</span>
+            <input type="text" id="f-buscar" placeholder="Nombre, categoría o ID..." />
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Categoría</span>
+            <select id="f-categoria">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Estado</span>
+            <select id="f-estado">
+              <option value="">Todos</option>
+              <option value="activos">Activos</option>
+              <option value="inactivos">Inactivos</option>
+              <option value="oferta">En oferta</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <span class="filter-label">Vista · Orden</span>
+            <div style="display:flex;gap:0.4rem;align-items:center;">
+              <div class="view-toggle">
+                <button id="view-compacta" class="active">Compacta</button>
+                <button id="view-amplia">Amplia</button>
+              </div>
+              <select id="f-orden">
+                <option value="id-asc">ID ↑</option>
+                <option value="id-desc">ID ↓</option>
+                <option value="precio-asc">Precio ↑</option>
+                <option value="precio-desc">Precio ↓</option>
+                <option value="nombre-asc">Nombre A-Z</option>
+                <option value="nombre-desc">Nombre Z-A</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:10%;">ID</th>
+                <th style="width:35%;">Nombre / categoría</th>
+                <th style="width:18%;">Precio</th>
+                <th style="width:15%;">Stock</th>
+                <th style="width:12%;">Estado</th>
+                <th style="width:10%;">Oferta</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-productos">
+              <tr>
+                <td colspan="6" style="text-align:center;color:var(--muted);">
+                  Cargando productos...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- EDITOR -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title" id="editor-titulo">Nuevo producto</div>
+            <div class="card-sub" id="editor-sub">
+              Completá los datos y guardá. Podés usar IA para generar la descripción.
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="btn-duplicar" class="btn btn-soft">Duplicar</button>
+            <button id="btn-limpiar" class="btn btn-ghost">Limpiar</button>
+          </div>
+        </div>
+
+        <div class="editor-layout">
+          <!-- CAMPOS PRINCIPALES -->
+          <div>
+            <div class="field">
+              <label for="p-id">ID interno</label>
+              <input id="p-id" type="text" disabled placeholder="Se asigna automáticamente" />
+              <small>El ID lo maneja el sistema. Solo se muestra.</small>
+            </div>
+            <div class="field">
+              <label for="p-nombre">Nombre</label>
+              <input id="p-nombre" placeholder="Ej: Pava eléctrica acero inox" />
+            </div>
+            <div class="two-cols">
+              <div class="field">
+                <label for="p-precio">Precio</label>
+                <input id="p-precio" type="number" min="0" step="0.01" placeholder="Ej: 10000" />
+              </div>
+              <div class="field">
+                <label for="p-categoria">Categoría</label>
+                <input id="p-categoria" placeholder="Ej: Termos, Pavas, Cocina" />
+              </div>
+            </div>
+            <div class="two-cols">
+              <div class="field">
+                <label for="p-stock">Stock</label>
+                <input id="p-stock" type="number" min="0" step="1" placeholder="Ej: 10" />
+              </div>
+              <div class="field">
+                <label for="p-activo">Estado</label>
+                <select id="p-activo">
+                  <option value="true">Activo (visible en catálogo)</option>
+                  <option value="false">Inactivo (oculto)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="p-colores">Colores (separados por coma)</label>
+              <input id="p-colores" placeholder="Ej: Negro, Blanco, Rojo" />
+            </div>
+            <div class="field">
+              <label for="p-tamanos">Tamaños (separados por coma)</label>
+              <input id="p-tamanos" placeholder="Ej: 500ml, 750ml, 1L" />
+            </div>
+
+            <div class="field">
+              <label for="p-descripcion">Descripción</label>
+              <textarea id="p-descripcion" placeholder="Texto que verá el cliente en la ficha del producto."></textarea>
+              <small>
+                Consejo: mantené frases cortas. Podés usar el botón de IA para generar una base y luego ajustarla a tu estilo.
+              </small>
+              <div class="btn-row" style="margin-top:0.3rem;">
+                <button id="btn-ia-desc" class="btn btn-soft">✨ Generar con IA</button>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Acciones</label>
+              <div class="btn-row">
+                <button id="btn-guardar" class="btn btn-main">💾 Guardar producto</button>
+                <button id="btn-borrar" class="btn btn-danger">🗑️ Borrar</button>
+                <button id="btn-toggle-activo" class="btn btn-soft">👁 Cambiar activo</button>
+              </div>
+            </div>
+
+            <div id="editor-status" class="status-bar"></div>
+          </div>
+
+          <!-- IMAGEN + OFERTA -->
+          <div>
+            <div class="field">
+              <label for="p-imagen-url">URL de imagen</label>
+              <input id="p-imagen-url" placeholder="https://..." />
+              <small>Esta es la URL que se usa en el catálogo. Ideal: la que viene de Cloudinary.</small>
+            </div>
+            <div class="field">
+              <label>Subir imagen a Cloudinary</label>
+              <div class="img-preview-wrap">
+                <img id="img-preview" src="" alt="Preview" style="display:none;" />
+                <div id="img-preview-text">Todavía no hay imagen cargada.</div>
+                <div style="margin-top:0.4rem;">
+                  <input type="file" id="p-imagen-file" accept="image/*" />
+                  <button id="btn-subir-imagen" class="btn btn-soft" style="margin-top:0.3rem;">
+                    ⬆ Subir y usar en el producto
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Oferta (opcional)</label>
+              <div class="two-cols">
+                <div>
+                  <select id="p-oferta-tipo">
+                    <option value="">Sin oferta</option>
+                    <option value="porcentaje">% de descuento</option>
+                    <option value="precio">Precio especial</option>
+                  </select>
+                </div>
+                <div>
+                  <input id="p-oferta-valor" type="number" min="0" step="0.01" placeholder="Ej: 10 (para 10%)" />
+                </div>
+              </div>
+              <input id="p-oferta-etiqueta" style="margin-top:0.3rem;"
+                     placeholder="Etiqueta visible: Ej: OFERTA FLASH, 2x1, etc." />
+              <small>
+                Estos campos son opcionales. Si están completos, el catálogo puede resaltar el producto como oferta.
+              </small>
+
+              <div id="oferta-preview" class="pill-oferta" style="display:none;">
+                <span>🔥 <span id="oferta-preview-text"></span></span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Precios estimados</label>
+              <div style="font-size:.8rem;color:var(--muted);">
+                <div>Precio base: $ <span id="precio-base">0.00</span></div>
+                <div>Precio con oferta: $ <span id="precio-oferta">0.00</span></div>
+                <div style="margin-top:.25rem;">
+                  <span style="font-size:.75rem;">Esto se usa solo a modo informativo, el cálculo real lo maneja el front del catálogo.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <!-- LISTADO -->
-  <div class="card">
-    <h2>Listado de productos</h2>
-    <div id="tabla-wrap">Cargando...</div>
-  </div>
+  <script>
+    // Estado global
+    let todosProductos = [];
+    let productoSeleccionado = null;
+    let vistaCompacta = true;
 
-<script>
-let EDITANDO_ID = null;
+    // DOM refs
+    const tablaBody = document.getElementById('tabla-productos');
+    const fBuscar = document.getElementById('f-buscar');
+    const fCategoria = document.getElementById('f-categoria');
+    const fEstado = document.getElementById('f-estado');
+    const fOrden = document.getElementById('f-orden');
+    const viewCompactaBtn = document.getElementById('view-compacta');
+    const viewAmpliaBtn = document.getElementById('view-amplia');
 
-// Cargar lista
-function cargarProductos() {
-  fetch("/api/productos")
-    .then(r => r.json())
-    .then(lista => {
-      if (!Array.isArray(lista)) {
-        document.getElementById("tabla-wrap").innerHTML =
-          "Error al cargar productos.";
+    const statTotal = document.getElementById('stat-total');
+    const statCategorias = document.getElementById('stat-categorias');
+    const statActivos = document.getElementById('stat-activos');
+    const statOferta = document.getElementById('stat-oferta');
+    const statStockTotal = document.getElementById('stat-stock-total');
+    const statStockBajo = document.getElementById('stat-stock-bajo');
+    const statValor = document.getElementById('stat-valor');
+    const statTicket = document.getElementById('stat-ticket');
+
+    const editorTitulo = document.getElementById('editor-titulo');
+    const editorSub = document.getElementById('editor-sub');
+    const editorStatus = document.getElementById('editor-status');
+
+    const pId = document.getElementById('p-id');
+    const pNombre = document.getElementById('p-nombre');
+    const pPrecio = document.getElementById('p-precio');
+    const pCategoria = document.getElementById('p-categoria');
+    const pStock = document.getElementById('p-stock');
+    const pActivo = document.getElementById('p-activo');
+    const pColores = document.getElementById('p-colores');
+    const pTamanos = document.getElementById('p-tamanos');
+    const pDescripcion = document.getElementById('p-descripcion');
+    const pImagenUrl = document.getElementById('p-imagen-url');
+    const pImagenFile = document.getElementById('p-imagen-file');
+    const imgPreview = document.getElementById('img-preview');
+    const imgPreviewText = document.getElementById('img-preview-text');
+
+    const pOfertaTipo = document.getElementById('p-oferta-tipo');
+    const pOfertaValor = document.getElementById('p-oferta-valor');
+    const pOfertaEtiqueta = document.getElementById('p-oferta-etiqueta');
+    const ofertaPreview = document.getElementById('oferta-preview');
+    const ofertaPreviewText = document.getElementById('oferta-preview-text');
+    const precioBaseEl = document.getElementById('precio-base');
+    const precioOfertaEl = document.getElementById('precio-oferta');
+
+    const btnNuevo = document.getElementById('btn-nuevo');
+    const btnRecargar = document.getElementById('btn-recargar');
+    const btnGuardar = document.getElementById('btn-guardar');
+    const btnBorrar = document.getElementById('btn-borrar');
+    const btnToggleActivo = document.getElementById('btn-toggle-activo');
+    const btnLimpiar = document.getElementById('btn-limpiar');
+    const btnDuplicar = document.getElementById('btn-duplicar');
+    const btnSubirImagen = document.getElementById('btn-subir-imagen');
+    const btnIaDesc = document.getElementById('btn-ia-desc');
+
+    function setStatus(msg, ok) {
+      editorStatus.textContent = msg || '';
+      editorStatus.className = 'status-bar' + (msg ? (ok ? ' status-ok' : ' status-error') : '');
+    }
+
+    function formatearPrecio(n) {
+      return Number(n || 0).toFixed(2);
+    }
+
+    function normalizarArrayTexto(texto) {
+      if (!texto) return [];
+      return String(texto)
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function calcularPrecioOferta(base, tipo, valor) {
+      const precioBase = Number(base || 0);
+      const v = Number(valor || 0);
+      if (!tipo || !v || precioBase <= 0) return precioBase;
+      if (tipo === 'porcentaje') {
+        const desc = (precioBase * v) / 100;
+        return Math.max(0, precioBase - desc);
+      }
+      if (tipo === 'precio') {
+        return Math.max(0, v);
+      }
+      return precioBase;
+    }
+
+    function actualizarPreviewOferta() {
+      const base = Number(pPrecio.value || 0);
+      const tipo = pOfertaTipo.value || '';
+      const valor = Number(pOfertaValor.value || 0);
+      const etiqueta = pOfertaEtiqueta.value.trim();
+
+      precioBaseEl.textContent = formatearPrecio(base);
+
+      if (!tipo || !valor || base <= 0) {
+        ofertaPreview.style.display = 'none';
+        precioOfertaEl.textContent = formatearPrecio(base);
         return;
       }
 
-      let html = `
-        <table>
-          <tr>
-            <th>ID</th>
-            <th>Imagen</th>
-            <th>Nombre</th>
-            <th>Precio</th>
-            <th>Stock</th>
-            <th>Categoría</th>
-            <th>Oferta</th>
-            <th>Activo</th>
-            <th>Acciones</th>
-          </tr>
-      `;
+      const nuevoPrecio = calcularPrecioOferta(base, tipo, valor);
+      precioOfertaEl.textContent = formatearPrecio(nuevoPrecio);
 
-      lista.forEach(p => {
-        html += `
-          <tr>
-            <td>${p.id}</td>
-            <td>${p.imagen_url ? `<img class="thumb" src="${p.imagen_url}">` : ""}</td>
-            <td>${p.nombre}</td>
-            <td>$${Number(p.precio).toFixed(2)}</td>
-            <td>${p.stock}</td>
-            <td>${p.categoria}</td>
-            <td>${p.oferta_activa ? (p.oferta_texto || "Oferta") : "-"}</td>
-            <td>${p.activo ? "✔️" : "❌"}</td>
+      let txt = etiqueta || 'OFERTA';
+      if (tipo === 'porcentaje') {
+        txt += ` · ${valor}% OFF`;
+      } else if (tipo === 'precio') {
+        txt += ` · $${formatearPrecio(nuevoPrecio)}`;
+      }
+      ofertaPreviewText.textContent = txt;
+      ofertaPreview.style.display = 'inline-flex';
+    }
+
+    [pPrecio, pOfertaTipo, pOfertaValor, pOfertaEtiqueta].forEach(el => {
+      el.addEventListener('input', actualizarPreviewOferta);
+      el.addEventListener('change', actualizarPreviewOferta);
+    });
+
+    function actualizarPreviewImagen(url) {
+      if (url) {
+        imgPreview.src = url;
+        imgPreview.style.display = 'block';
+        imgPreviewText.textContent = 'Previsualización actual de la imagen.';
+      } else {
+        imgPreview.src = '';
+        imgPreview.style.display = 'none';
+        imgPreviewText.textContent = 'Todavía no hay imagen cargada.';
+      }
+    }
+
+    pImagenUrl.addEventListener('input', () => {
+      const url = pImagenUrl.value.trim();
+      actualizarPreviewImagen(url);
+    });
+
+    function limpiarEditor(mantenerId) {
+      const idActual = mantenerId ? pId.value : '';
+      productoSeleccionado = null;
+      editorTitulo.textContent = 'Nuevo producto';
+      editorSub.textContent = 'Completá los datos y guardá. Podés usar IA para la descripción.';
+      pId.value = idActual || '';
+      pNombre.value = '';
+      pPrecio.value = '';
+      pCategoria.value = '';
+      pStock.value = '';
+      pActivo.value = 'true';
+      pColores.value = '';
+      pTamanos.value = '';
+      pDescripcion.value = '';
+      pImagenUrl.value = '';
+      pOfertaTipo.value = '';
+      pOfertaValor.value = '';
+      pOfertaEtiqueta.value = '';
+      actualizarPreviewImagen('');
+      actualizarPreviewOferta();
+      setStatus('', true);
+      Array.from(tablaBody.querySelectorAll('tr')).forEach(tr => tr.classList.remove('selected'));
+    }
+
+    btnLimpiar.addEventListener('click', () => limpiarEditor(false));
+    btnNuevo.addEventListener('click', () => limpiarEditor(false));
+
+    btnDuplicar.addEventListener('click', () => {
+      if (!productoSeleccionado) {
+        setStatus('Primero seleccioná un producto para duplicar.', false);
+        return;
+      }
+      pId.value = '';
+      productoSeleccionado = null;
+      editorTitulo.textContent = 'Duplicando producto (nuevo)';
+      editorSub.textContent = 'Este es un nuevo producto basado en otro. Podés ajustar y guardar.';
+      setStatus('Estás creando una copia. Al guardar se generará un nuevo ID.', true);
+    });
+
+    btnSubirImagen.addEventListener('click', () => {
+      const file = pImagenFile.files && pImagenFile.files[0];
+      if (!file) {
+        setStatus('Elegí primero un archivo de imagen.', false);
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append('imagen', file);
+      setStatus('Subiendo imagen a Cloudinary...', true);
+
+      fetch('/api/upload-imagen', {
+        method: 'POST',
+        body: fd
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (!data || !data.ok || !data.url) {
+            setStatus('No se pudo subir la imagen. Revisá la configuración de Cloudinary.', false);
+            return;
+          }
+          pImagenUrl.value = data.url;
+          actualizarPreviewImagen(data.url);
+          setStatus('Imagen subida correctamente y aplicada al producto.', true);
+        })
+        .catch(() => {
+          setStatus('Error de conexión al subir imagen.', false);
+        });
+    });
+
+    btnIaDesc.addEventListener('click', () => {
+      const payload = {
+        nombre: pNombre.value || '',
+        categoria: pCategoria.value || '',
+        detalles: '',
+        colores: normalizarArrayTexto(pColores.value),
+        tamanos: normalizarArrayTexto(pTamanos.value)
+      };
+      setStatus('Generando descripción con IA...', true);
+      fetch('/api/ia/descripcion-producto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (!data || !data.ok || !data.texto) {
+            setStatus('No se pudo generar la descripción (IA desactivada o error).', false);
+            return;
+          }
+          pDescripcion.value = data.texto;
+          setStatus('Descripción generada. Podés ajustarla a tu gusto.', true);
+        })
+        .catch(() => {
+          setStatus('Error llamando a IA.', false);
+        });
+    });
+
+    function aplicarFiltrosOrden() {
+      let lista = [...todosProductos];
+      const q = fBuscar.value.trim().toLowerCase();
+      const cat = fCategoria.value || '';
+      const est = fEstado.value || '';
+      const ord = fOrden.value || 'id-asc';
+
+      if (q) {
+        lista = lista.filter(p => {
+          const nombre = (p.nombre || '').toLowerCase();
+          const categoria = (p.categoria || '').toLowerCase();
+          const idStr = String(p.id || '').toLowerCase();
+          return (
+            nombre.includes(q) ||
+            categoria.includes(q) ||
+            idStr.includes(q)
+          );
+        });
+      }
+
+      if (cat) {
+        lista = lista.filter(p => (p.categoria || '') === cat);
+      }
+
+      if (est === 'activos') {
+        lista = lista.filter(p => p.activo !== false);
+      } else if (est === 'inactivos') {
+        lista = lista.filter(p => p.activo === false);
+      } else if (est === 'oferta') {
+        lista = lista.filter(p => !!(p.oferta_tipo && p.oferta_valor));
+      }
+
+      lista.sort((a, b) => {
+        switch (ord) {
+          case 'id-asc':
+            return (a.id || 0) - (b.id || 0);
+          case 'id-desc':
+            return (b.id || 0) - (a.id || 0);
+          case 'precio-asc':
+            return (a.precio || 0) - (b.precio || 0);
+          case 'precio-desc':
+            return (b.precio || 0) - (a.precio || 0);
+          case 'nombre-asc':
+            return (a.nombre || '').localeCompare(b.nombre || '');
+          case 'nombre-desc':
+            return (b.nombre || '').localeCompare(a.nombre || '');
+          default:
+            return 0;
+        }
+      });
+
+      return lista;
+    }
+
+    [fBuscar, fCategoria, fEstado, fOrden].forEach(el => {
+      el.addEventListener('input', renderTabla);
+      el.addEventListener('change', renderTabla);
+    });
+
+    viewCompactaBtn.addEventListener('click', () => {
+      vistaCompacta = true;
+      viewCompactaBtn.classList.add('active');
+      viewAmpliaBtn.classList.remove('active');
+      renderTabla();
+    });
+    viewAmpliaBtn.addEventListener('click', () => {
+      vistaCompacta = false;
+      viewAmpliaBtn.classList.add('active');
+      viewCompactaBtn.classList.remove('active');
+      renderTabla();
+    });
+
+    function renderTabla() {
+      const lista = aplicarFiltrosOrden();
+
+      if (!lista.length) {
+        tablaBody.innerHTML =
+          '<tr><td colspan="6" style="text-align:center;color:var(--muted);">No hay productos que coincidan con el filtro.</td></tr>';
+        return;
+      }
+
+      const filas = lista.map(p => {
+        const stock = typeof p.stock === 'number' ? p.stock : 0;
+        let stockCls = 'stock-ok';
+        let stockTxt = stock;
+        if (stock <= 0) {
+          stockCls = 'stock-cero';
+          stockTxt = '0';
+        } else if (stock > 0 && stock <= 3) {
+          stockCls = 'stock-bajo';
+        }
+
+        const activoBadge = p.activo === false
+          ? '<span class="badge badge-inactivo">Inactivo</span>'
+          : '<span class="badge badge-activo">Activo</span>';
+
+        const tieneOferta = !!(p.oferta_tipo && p.oferta_valor);
+        const ofertaBadge = tieneOferta
+          ? '<span class="badge badge-oferta">Oferta</span>'
+          : '';
+
+        const precioBase = Number(p.precio || 0);
+        const precioFinal = calcularPrecioOferta(
+          precioBase,
+          p.oferta_tipo || '',
+          p.oferta_valor || 0
+        );
+
+        let precioHtml = '';
+        if (tieneOferta && precioFinal < precioBase) {
+          precioHtml =
+            `<div style="font-size:.78rem;"><span style="text-decoration:line-through;color:var(--muted);">$ ${formatearPrecio(precioBase)}</span></div>` +
+            `<div style="font-size:.9rem;font-weight:600;color:#c4b5fd;">$ ${formatearPrecio(precioFinal)}</div>`;
+        } else {
+          precioHtml = `<div style="font-size:.9rem;font-weight:600;">$ ${formatearPrecio(precioBase)}</div>`;
+        }
+
+        const catHtml = vistaCompacta
+          ? `<div style="font-size:.72rem;color:var(--muted);">${p.categoria || 'Sin categoría'}</div>`
+          : `<div style="font-size:.72rem;color:var(--muted);">Cat.: ${p.categoria || 'Sin categoría'}</div>`;
+
+        const ofTxt = p.oferta_etiqueta || (tieneOferta ? 'Oferta activa' : '');
+
+        return `
+          <tr data-id="${p.id}">
+            <td>#${p.id}</td>
             <td>
-              <button data-id="${p.id}" data-rol="edit">Editar</button>
-              <button data-id="${p.id}" data-rol="act">${p.activo ? "Desactivar" : "Activar"}</button>
-              <button data-id="${p.id}" data-rol="del">Borrar</button>
+              <div style="font-weight:600;font-size:.86rem;margin-bottom:.1rem;">
+                ${p.nombre || 'Sin nombre'}
+              </div>
+              ${catHtml}
+            </td>
+            <td>${precioHtml}</td>
+            <td>
+              <span class="${stockCls}">${stockTxt}</span>
+              ${stock <= 0 ? '<div style="font-size:.72rem;color:var(--muted);">Sin stock</div>' :
+                stock <= 3 ? '<div style="font-size:.72rem;color:var(--muted);">Pocas unidades</div>' : ''}
+            </td>
+            <td>${activoBadge}</td>
+            <td>
+              ${ofertaBadge}
+              ${ofTxt ? `<div style="font-size:.7rem;color:var(--muted);">${ofTxt}</div>` : ''}
             </td>
           </tr>
         `;
-      });
+      }).join('');
 
-      html += "</table>";
-      document.getElementById("tabla-wrap").innerHTML = html;
-    });
-}
-
-cargarProductos();
-
-// Subir imagen a Cloudinary
-document.getElementById("btn-subir").addEventListener("click", async () => {
-  const fileInput = document.getElementById("file-imagen");
-  const status = document.getElementById("status-imagen");
-
-  if (!fileInput.files.length) {
-    status.innerHTML = `<div class="status-error">No seleccionaste ningún archivo.</div>`;
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("imagen", fileInput.files[0]);
-
-  status.innerHTML = `<div class="status-ok">Subiendo imagen...</div>`;
-
-  try {
-    const resp = await fetch("/api/upload-imagen", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await resp.json();
-
-    if (!data.ok) {
-      status.innerHTML = `<div class="status-error">Error al subir.</div>`;
-      return;
+      tablaBody.innerHTML = filas;
     }
 
-    document.getElementById("p-imagen_url").value = data.url;
-    status.innerHTML = `<div class="status-ok">Imagen subida correctamente. URL aplicada.</div>`;
+    tablaBody.addEventListener('click', (e) => {
+      const tr = e.target.closest('tr[data-id]');
+      if (!tr) return;
+      const id = Number(tr.getAttribute('data-id'));
+      const p = todosProductos.find(x => Number(x.id) === id);
+      if (!p) return;
 
-  } catch (e) {
-    status.innerHTML = `<div class="status-error">Error subiendo la imagen.</div>`;
-  }
-});
+      Array.from(tablaBody.querySelectorAll('tr')).forEach(row => row.classList.remove('selected'));
+      tr.classList.add('selected');
 
-// Guardar producto (crear/editar)
-document.getElementById("btn-guardar").addEventListener("click", () => {
-  const prod = {
-    nombre: document.getElementById("p-nombre").value,
-    precio: document.getElementById("p-precio").value,
-    stock: document.getElementById("p-stock").value,
-    categoria: document.getElementById("p-categoria").value,
-    colores: document.getElementById("p-colores").value,
-    tamanos: document.getElementById("p-tamanos").value,
-    imagen_url: document.getElementById("p-imagen_url").value,
-    descripcion: document.getElementById("p-descripcion").value,
-    oferta_activa: document.getElementById("p-oferta-activa").checked,
-    oferta_texto: document.getElementById("p-oferta-texto").value
-  };
+      productoSeleccionado = p;
+      editorTitulo.textContent = `Editando producto #${p.id}`;
+      editorSub.textContent = 'Modificá los datos y guardá los cambios.';
 
-  const url = EDITANDO_ID
-    ? `/api/productos/${EDITANDO_ID}`
-    : "/api/productos";
+      pId.value = p.id != null ? p.id : '';
+      pNombre.value = p.nombre || '';
+      pPrecio.value = p.precio != null ? p.precio : '';
+      pCategoria.value = p.categoria || '';
+      pStock.value = p.stock != null ? p.stock : '';
+      pActivo.value = (p.activo === false ? 'false' : 'true');
+      pColores.value = Array.isArray(p.colores) ? p.colores.join(', ') : '';
+      pTamanos.value = Array.isArray(p.tamanos) ? p.tamanos.join(', ') : '';
+      pDescripcion.value = p.descripcion || '';
+      pImagenUrl.value = p.imagen_url || '';
 
-  const method = EDITANDO_ID ? "PATCH" : "POST";
+      pOfertaTipo.value = p.oferta_tipo || '';
+      pOfertaValor.value = p.oferta_valor != null ? p.oferta_valor : '';
+      pOfertaEtiqueta.value = p.oferta_etiqueta || '';
 
-  fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(prod),
-  })
-    .then(r => r.json())
-    .then(() => {
-      limpiarFormulario();
+      actualizarPreviewImagen(p.imagen_url || '');
+      actualizarPreviewOferta();
+      setStatus('', true);
+    });
+
+    function actualizarStats() {
+      const total = todosProductos.length;
+      const activos = todosProductos.filter(p => p.activo !== false).length;
+      const categoriasSet = new Set(
+        todosProductos.map(p => p.categoria).filter(Boolean)
+      );
+      const stockTotal = todosProductos.reduce(
+        (acc, p) => acc + (typeof p.stock === 'number' ? p.stock : 0),
+        0
+      );
+      let bajo = 0;
+      let cero = 0;
+      let valorStock = 0;
+      todosProductos.forEach(p => {
+        const stock = typeof p.stock === 'number' ? p.stock : 0;
+        if (stock <= 0) cero++;
+        else if (stock <= 3) bajo++;
+        valorStock += stock * (Number(p.precio || 0));
+      });
+
+      const enOferta = todosProductos.filter(
+        p => !!(p.oferta_tipo && p.oferta_valor)
+      ).length;
+
+      statTotal.textContent = total;
+      statActivos.textContent = activos;
+      statCategorias.textContent = `${categoriasSet.size} categorías`;
+      statStockTotal.textContent = stockTotal;
+      statStockBajo.textContent = `${bajo} bajos / ${cero} sin stock`;
+      statValor.textContent = `$ ${formatearPrecio(valorStock)}`;
+
+      const ticketProm = total ? valorStock / total : 0;
+      statTicket.textContent = `Ticket promedio: $${formatearPrecio(ticketProm)}`;
+      statOferta.textContent = `${enOferta} en oferta`;
+    }
+
+    function poblarCategoriasFiltro() {
+      const cats = new Set(
+        todosProductos.map(p => p.categoria).filter(Boolean)
+      );
+      const actual = fCategoria.value || '';
+      fCategoria.innerHTML = '<option value="">Todas</option>' +
+        Array.from(cats).sort().map(c =>
+          `<option value="${c}">${c}</option>`
+        ).join('');
+      if (actual) {
+        fCategoria.value = actual;
+      }
+    }
+
+    function cargarProductos() {
+      tablaBody.innerHTML =
+        '<tr><td colspan="6" style="text-align:center;color:var(--muted);">Cargando productos...</td></tr>';
+      fetch('/api/productos')
+        .then(r => r.json())
+        .then(data => {
+          todosProductos = Array.isArray(data) ? data : [];
+          actualizarStats();
+          poblarCategoriasFiltro();
+          renderTabla();
+        })
+        .catch(() => {
+          tablaBody.innerHTML =
+            '<tr><td colspan="6" style="text-align:center;color:#f97373;">Error cargando productos.</td></tr>';
+        });
+    }
+
+    btnRecargar.addEventListener('click', () => {
       cargarProductos();
+      setStatus('', true);
     });
-});
 
-// Limpiar
-function limpiarFormulario() {
-  EDITANDO_ID = null;
-  document.getElementById("form-titulo").innerText = "Nuevo producto";
-  document.querySelectorAll("input, textarea").forEach(e => {
-    if (e.type === "checkbox") {
-      e.checked = false;
-    } else {
-      e.value = "";
-    }
-  });
-  document.getElementById("status-imagen").innerHTML = "";
-}
+    btnGuardar.addEventListener('click', () => {
+      const nombre = pNombre.value.trim();
+      const precio = Number(pPrecio.value || 0);
+      const categoria = pCategoria.value.trim();
+      const stock = pStock.value === '' ? 0 : Number(pStock.value || 0);
+      const activo = pActivo.value === 'true';
+      const colores = normalizarArrayTexto(pColores.value);
+      const tamanos = normalizarArrayTexto(pTamanos.value);
+      const descripcion = pDescripcion.value.trim();
+      const imagen_url = pImagenUrl.value.trim();
 
-document.getElementById("btn-limpiar").addEventListener("click", limpiarFormulario);
+      const oferta_tipo = pOfertaTipo.value || '';
+      const oferta_valor = pOfertaValor.value === '' ? null : Number(pOfertaValor.value || 0);
+      const oferta_etiqueta = pOfertaEtiqueta.value.trim();
 
-// Acciones en tabla
-document.getElementById("tabla-wrap").addEventListener("click", (e) => {
-  const id = e.target.getAttribute("data-id");
-  const rol = e.target.getAttribute("data-rol");
-  if (!id || !rol) return;
+      if (!nombre || !precio) {
+        setStatus('Nombre y precio son obligatorios.', false);
+        return;
+      }
 
-  // Editar
-  if (rol === "edit") {
-    fetch(`/api/productos`)
-      .then(r => r.json())
-      .then(lista => {
-        const p = lista.find(x => String(x.id) === String(id));
-        if (!p) return;
+      const id = pId.value ? Number(pId.value) : null;
+      const payload = {
+        nombre,
+        precio,
+        categoria,
+        stock,
+        activo,
+        colores,
+        tamanos,
+        descripcion,
+        imagen_url,
+        oferta_tipo: oferta_tipo || undefined,
+        oferta_valor: oferta_valor != null ? oferta_valor : undefined,
+        oferta_etiqueta: oferta_etiqueta || undefined
+      };
 
-        EDITANDO_ID = p.id;
+      if (!id) {
+        // Crear nuevo
+        setStatus('Creando producto...', true);
+        fetch('/api/productos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(r => r.json())
+          .then(data => {
+            setStatus('Producto creado correctamente.', true);
+            todosProductos.push(data);
+            actualizarStats();
+            poblarCategoriasFiltro();
+            renderTabla();
+            if (data && data.id != null) {
+              pId.value = data.id;
+              productoSeleccionado = data;
+              editorTitulo.textContent = `Editando producto #${data.id}`;
+              editorSub.textContent = 'El producto ya está creado. Podés seguir ajustando y guardando.';
+            }
+          })
+          .catch(() => {
+            setStatus('Error al crear producto.', false);
+          });
+      } else {
+        // Editar existente
+        setStatus('Guardando cambios...', true);
+        fetch('/api/productos/' + id, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+          .then(r => r.json())
+          .then(data => {
+            setStatus('Producto actualizado.', true);
+            const idx = todosProductos.findIndex(p => Number(p.id) === id);
+            if (idx !== -1) {
+              todosProductos[idx] = data;
+            }
+            productoSeleccionado = data;
+            actualizarStats();
+            poblarCategoriasFiltro();
+            renderTabla();
+          })
+          .catch(() => {
+            setStatus('Error al actualizar producto.', false);
+          });
+      }
+    });
 
-        document.getElementById("form-titulo").innerText =
-          `Editar producto #${p.id}`;
+    btnBorrar.addEventListener('click', () => {
+      const id = pId.value ? Number(pId.value) : null;
+      if (!id) {
+        setStatus('Primero seleccioná un producto para borrar.', false);
+        return;
+      }
+      if (!confirm('¿Seguro que querés borrar el producto #' + id + '? Esta acción no se puede deshacer.')) {
+        return;
+      }
+      setStatus('Borrando producto...', true);
+      fetch('/api/productos/' + id, {
+        method: 'DELETE'
+      })
+        .then(r => r.json())
+        .then(() => {
+          setStatus('Producto borrado.', true);
+          todosProductos = todosProductos.filter(p => Number(p.id) !== id);
+          limpiarEditor(false);
+          actualizarStats();
+          poblarCategoriasFiltro();
+          renderTabla();
+        })
+        .catch(() => {
+          setStatus('Error al borrar producto.', false);
+        });
+    });
 
-        document.getElementById("p-nombre").value = p.nombre;
-        document.getElementById("p-precio").value = p.precio;
-        document.getElementById("p-stock").value = p.stock;
-        document.getElementById("p-categoria").value = p.categoria;
-        document.getElementById("p-colores").value = (p.colores || []).join(", ");
-        document.getElementById("p-tamanos").value = (p.tamanos || []).join(", ");
-        document.getElementById("p-imagen_url").value = p.imagen_url;
-        document.getElementById("p-descripcion").value = p.descripcion || "";
-        document.getElementById("p-oferta-activa").checked = !!p.oferta_activa;
-        document.getElementById("p-oferta-texto").value = p.oferta_texto || "";
-      });
-  }
+    btnToggleActivo.addEventListener('click', () => {
+      const id = pId.value ? Number(pId.value) : null;
+      if (!id) {
+        setStatus('Primero seleccioná un producto.', false);
+        return;
+      }
+      const actual = pActivo.value === 'true';
+      const nuevo = !actual;
+      setStatus('Actualizando estado...', true);
+      fetch('/api/productos/' + id + '/activo', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activo: nuevo })
+      })
+        .then(r => r.json())
+        .then(data => {
+          setStatus('Estado actualizado.', true);
+          pActivo.value = data.activo === false ? 'false' : 'true';
+          const idx = todosProductos.findIndex(p => Number(p.id) === id);
+          if (idx !== -1) {
+            todosProductos[idx] = data;
+          }
+          actualizarStats();
+          renderTabla();
+        })
+        .catch(() => {
+          setStatus('Error al cambiar estado.', false);
+        });
+    });
 
-  // Activar / desactivar
-  if (rol === "act") {
-    fetch(`/api/productos/${id}/activo`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}),
-    }).then(() => cargarProductos());
-  }
-
-  // Borrar
-  if (rol === "del") {
-    if (!confirm("¿Seguro que querés borrarlo?")) return;
-
-    fetch(`/api/productos/${id}`, {
-      method: "DELETE",
-    }).then(() => cargarProductos());
-  }
-});
-</script>
-
+    (function init() {
+      cargarProductos();
+    })();
+  </script>
 </body>
 </html>
