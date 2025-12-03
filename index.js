@@ -280,10 +280,7 @@ app.post('/api/productos', async (req, res) => {
       imagen_url,
       colores,
       tamanos,
-      stock,
-      // oferta
-      oferta_activa,
-      oferta_texto
+      stock
     } = req.body || {};
 
     if (!nombre || !precio) {
@@ -302,9 +299,7 @@ app.post('/api/productos', async (req, res) => {
       colores: normalizarArrayDesdeCampo(colores),
       tamanos: normalizarArrayDesdeCampo(tamanos),
       stock: stock === '' || stock === undefined ? 1 : Number(stock) || 0,
-      activo: true,
-      oferta_activa: !!oferta_activa,
-      oferta_texto: oferta_texto || ''
+      activo: true
     });
 
     res.json(producto);
@@ -336,7 +331,7 @@ app.patch('/api/productos/:id/activo', async (req, res) => {
   }
 });
 
-// Editar producto (nombre, precio, stock, oferta, etc.)
+// Editar producto (nombre, precio, stock, etc.)
 app.patch('/api/productos/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -352,9 +347,7 @@ app.patch('/api/productos/:id', async (req, res) => {
       imagen_url,
       colores,
       tamanos,
-      stock,
-      oferta_activa,
-      oferta_texto
+      stock
     } = req.body || {};
 
     if (nombre !== undefined) p.nombre = nombre;
@@ -365,9 +358,6 @@ app.patch('/api/productos/:id', async (req, res) => {
     if (colores !== undefined) p.colores = normalizarArrayDesdeCampo(colores);
     if (tamanos !== undefined) p.tamanos = normalizarArrayDesdeCampo(tamanos);
     if (stock !== undefined) p.stock = Number(stock) || 0;
-
-    if (oferta_activa !== undefined) p.oferta_activa = !!oferta_activa;
-    if (oferta_texto !== undefined) p.oferta_texto = oferta_texto;
 
     await p.save();
     res.json(p);
@@ -444,16 +434,17 @@ app.post('/api/ventas', async (req, res) => {
       comision_porcentaje,
       cliente_id,
       cliente_texto,
+      // NUEVO: items con varios productos
+      items,
+      // Campos viejos (por compatibilidad)
       producto_id,
       cantidad_producto,
       detalle
     } = req.body || {};
 
     const fechaFinal = fecha || new Date().toISOString().slice(0, 10);
-    const totalNum = Number(total) || 0;
-    const porc = Number(comision_porcentaje) || 0;
-    const comision_calculada = Math.round((totalNum * porc) / 100);
 
+    // Cliente
     let cliId = cliente_id ? Number(cliente_id) : null;
     let cliNombre = cliente_texto || '';
 
@@ -473,19 +464,66 @@ app.post('/api/ventas', async (req, res) => {
       if (cli) cliNombre = cli.nombre;
     }
 
-    // Descontar stock si corresponde (ahora en Mongo)
-    let prodId = producto_id ? Number(producto_id) : null;
-    let cantDesc = cantidad_producto ? Number(cantidad_producto) : 0;
-    if (prodId && cantDesc > 0) {
-      try {
-        const p = await Producto.findOne({ id: prodId });
-        if (p) {
-          const stockActual = typeof p.stock === 'number' ? p.stock : 0;
-          p.stock = Math.max(0, stockActual - cantDesc);
-          await p.save();
+    // Calcular total
+    let totalNum = Number(total) || 0;
+
+    // Si se mandaron varios items y no hay total, lo calculamos desde productos en Mongo
+    let itemsLimpios = Array.isArray(items) ? items : [];
+    itemsLimpios = itemsLimpios
+      .map(it => ({
+        producto_id: Number(it.producto_id),
+        cantidad: Number(it.cantidad) || 0
+      }))
+      .filter(it => it.producto_id && it.cantidad > 0);
+
+    if (itemsLimpios.length && (!total || totalNum <= 0)) {
+      totalNum = 0;
+      for (const it of itemsLimpios) {
+        try {
+          const p = await Producto.findOne({ id: it.producto_id });
+          if (p) {
+            const precio = typeof p.precio === 'number' ? p.precio : 0;
+            totalNum += precio * it.cantidad;
+          }
+        } catch (e) {
+          console.error('Error obteniendo producto para calcular total:', e);
         }
-      } catch (errStock) {
-        console.error('Error actualizando stock desde venta:', errStock);
+      }
+    }
+
+    const porc = Number(comision_porcentaje) || 0;
+    const comision_calculada = Math.round((totalNum * porc) / 100);
+
+    // Descontar stock
+    if (itemsLimpios.length) {
+      // Varios productos
+      for (const it of itemsLimpios) {
+        try {
+          const p = await Producto.findOne({ id: it.producto_id });
+          if (p) {
+            const stockActual = typeof p.stock === 'number' ? p.stock : 0;
+            p.stock = Math.max(0, stockActual - it.cantidad);
+            await p.save();
+          }
+        } catch (errStock) {
+          console.error('Error actualizando stock desde venta (items):', errStock);
+        }
+      }
+    } else {
+      // Compatibilidad con viejo formato (un solo producto)
+      let prodId = producto_id ? Number(producto_id) : null;
+      let cantDesc = cantidad_producto ? Number(cantidad_producto) : 0;
+      if (prodId && cantDesc > 0) {
+        try {
+          const p = await Producto.findOne({ id: prodId });
+          if (p) {
+            const stockActual = typeof p.stock === 'number' ? p.stock : 0;
+            p.stock = Math.max(0, stockActual - cantDesc);
+            await p.save();
+          }
+        } catch (errStock) {
+          console.error('Error actualizando stock desde venta:', errStock);
+        }
       }
     }
 
@@ -500,8 +538,8 @@ app.post('/api/ventas', async (req, res) => {
       cliente_id: cliId,
       cliente: cliNombre,
       detalle: detalle || '',
-      producto_id: prodId,
-      cantidad_producto: cantDesc
+      // Guardamos los items si vinieron
+      items: itemsLimpios.length ? itemsLimpios : undefined
     };
 
     ventas.push(v);

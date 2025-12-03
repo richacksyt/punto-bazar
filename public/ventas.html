@@ -4,92 +4,108 @@
   <meta charset="UTF-8" />
   <title>Punto Bazar - Ventas y comisiones</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <style>
+    :root {
+      --bg: #020617;
+      --card: rgba(15, 23, 42, 0.98);
+      --borde: rgba(148, 163, 184, 0.45);
+      --texto: #e5e7eb;
+      --muted: #9ca3af;
+      --violeta: #8b5cf6;
+    }
     body {
       margin: 0;
       padding: 1rem;
-      font-family: system-ui, sans-serif;
-      background: #020617;
-      color: #e5e7eb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 75%);
+      color: var(--texto);
     }
     h1 {
       margin-top: 0;
+      font-size: 1.3rem;
     }
-    .grid {
+    .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
       gap: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
     }
     .card {
-      background: rgba(15, 23, 42, 0.96);
+      background: var(--card);
       border-radius: 1rem;
-      border: 1px solid rgba(148, 163, 184, 0.3);
+      border: 1px solid var(--borde);
       padding: 1rem;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.9);
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.95);
     }
     label {
       display: block;
-      margin-top: 0.6rem;
-      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
       color: #cbd5e1;
     }
     input, select, textarea {
       width: 100%;
-      padding: 0.4rem 0.55rem;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: #020617;
-      color: #e5e7eb;
-      margin-top: 0.2rem;
-      font-size: 0.9rem;
       box-sizing: border-box;
+      margin-top: 0.2rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: #020617;
+      color: var(--texto);
+      font-size: 0.88rem;
     }
     textarea {
+      min-height: 70px;
       resize: vertical;
     }
     .row-2 {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0.6rem;
     }
-    button {
-      margin-top: 0.7rem;
-      padding: 0.5rem 0.9rem;
-      border-radius: 0.7rem;
+    .btn {
+      border-radius: 999px;
       border: none;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
       cursor: pointer;
-      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
     }
     .btn-main {
       background: linear-gradient(135deg, #4f46e5, #a855f7);
-      color: white;
-      box-shadow: 0 12px 28px rgba(88, 80, 236, 0.75);
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(88, 80, 236, 0.8);
     }
     .btn-ghost {
       background: transparent;
-      border: 1px solid #64748b;
-      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      color: var(--texto);
     }
-    .status {
-      font-size: 0.8rem;
-      margin-top: 0.4rem;
-      min-height: 1rem;
+    .btn-mini {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.78rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
     }
-    .status-ok {
-      color: #4ade80;
-    }
-    .status-error {
-      color: #f97373;
+    .btn-danger {
+      background: rgba(248, 113, 113, 0.2);
+      color: #fecaca;
+      border: 1px solid rgba(248, 113, 113, 0.6);
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 0.7rem;
-      font-size: 0.82rem;
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
     }
     th, td {
-      padding: 0.45rem 0.35rem;
-      border-bottom: 1px solid rgba(148,163,184,0.2);
+      padding: 0.4rem 0.3rem;
+      border-bottom: 1px solid rgba(30, 64, 175, 0.5);
       text-align: left;
     }
     th {
@@ -98,414 +114,368 @@
       top: 0;
       z-index: 1;
     }
-    .tabla-wrap {
-      max-height: 360px;
+    .items-wrap {
+      max-height: 260px;
       overflow: auto;
       border-radius: 0.7rem;
-      border: 1px solid rgba(51,65,85,0.9);
-      margin-top: 0.5rem;
-    }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.2rem;
-      font-size: 0.78rem;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
-      padding: 0.15rem 0.6rem;
-      margin-right: 0.3rem;
-      margin-bottom: 0.3rem;
-    }
-    .chip strong {
-      font-weight: 600;
-    }
-    .totales-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 0.4rem;
+      border: 1px solid rgba(30, 64, 175, 0.6);
       margin-top: 0.4rem;
     }
-    .total-box {
-      background: #020617;
-      border-radius: 0.7rem;
-      border: 1px solid rgba(148,163,184,0.3);
-      padding: 0.4rem 0.5rem;
-      font-size: 0.8rem;
+    .status {
+      margin-top: 0.5rem;
+      font-size: 0.82rem;
+      min-height: 1.1rem;
     }
-    .total-label {
-      color: #9ca3af;
+    .status-ok {
+      color: #4ade80;
     }
-    .total-value {
-      font-size: 0.95rem;
+    .status-error {
+      color: #f97373;
+    }
+    .totales {
+      margin-top: 0.7rem;
+      font-size: 0.88rem;
+    }
+    .totales div {
+      margin-bottom: 0.2rem;
+    }
+    .subtitulo {
+      font-size: 0.9rem;
       font-weight: 600;
+      margin-top: 0;
     }
     @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: minmax(0,1fr);
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
       }
     }
   </style>
 </head>
 <body>
-
   <h1>Ventas y comisiones</h1>
+  <p style="font-size:.86rem;color:#9ca3af;margin-top:-.4rem;margin-bottom:.8rem;">
+    Registrá las ventas, asignalas a un revendedor y armá el detalle con varios productos.
+  </p>
 
-  <div class="grid">
-    <!-- FORM VENTA -->
-    <div class="card">
-      <h2 style="margin-top:0;">Cargar venta rápida</h2>
+  <div class="layout">
+    <!-- FORMULARIO PRINCIPAL -->
+    <section class="card">
+      <h2 class="subtitulo">Datos de la venta</h2>
 
-      <div class="row-2">
-        <div>
-          <label>Fecha</label>
-          <input id="v-fecha" type="date" />
-        </div>
-        <div>
-          <label>Revendedor</label>
-          <select id="v-revendedor"></select>
-        </div>
-      </div>
+      <label for="v-fecha">Fecha</label>
+      <input id="v-fecha" type="date" />
 
-      <label>Cliente (si no existe, escribí el nombre)</label>
-      <select id="v-cliente"></select>
-      <input id="v-cliente-texto" placeholder="O escribí nombre de cliente nuevo" />
+      <label for="v-revendedor">Revendedor</label>
+      <select id="v-revendedor">
+        <option value="">Elegí un revendedor...</option>
+      </select>
 
-      <div class="row-2">
-        <div>
-          <label>Producto (opcional)</label>
-          <select id="v-producto"></select>
-        </div>
-        <div>
-          <label>Cantidad</label>
-          <input id="v-cantidad-prod" type="number" min="0" />
-        </div>
-      </div>
+      <label for="v-cliente">Cliente (nombre)</label>
+      <input id="v-cliente" placeholder="Ej: Juan Pérez (opcional)" />
 
       <div class="row-2">
         <div>
-          <label>Total $</label>
-          <input id="v-total" type="number" min="0" step="0.01" />
+          <label for="v-comision">Comisión (%)</label>
+          <input id="v-comision" type="number" min="0" max="100" value="20" />
         </div>
         <div>
-          <label>Comisión %</label>
-          <input id="v-comision" type="number" min="0" max="100" />
+          <label for="v-total-manual">Total (opcional)</label>
+          <input id="v-total-manual" type="number" min="0" step="0.01"
+                 placeholder="Si lo dejás vacío, se calcula con los productos." />
         </div>
       </div>
 
-      <label>Detalle / notas</label>
-      <textarea id="v-detalle" rows="2" placeholder="Ej: Pedido contado efectivo, entrega en centro"></textarea>
+      <label for="v-detalle">Notas / detalle extra (opcional)</label>
+      <textarea id="v-detalle" placeholder="Ej: Entrega viernes tarde, combo especial, etc."></textarea>
 
-      <button class="btn-main" id="btn-guardar-venta">Guardar venta</button>
-      <div id="status-venta" class="status"></div>
-    </div>
+      <button id="btn-guardar-venta" class="btn btn-main" style="margin-top:.9rem;">
+        Guardar venta
+      </button>
 
-    <!-- RESUMEN Y LISTADO -->
-    <div class="card">
-      <h2 style="margin-top:0;">Resumen</h2>
+      <div id="venta-status" class="status"></div>
 
-      <div class="totales-grid">
-        <div class="total-box">
-          <div class="total-label">Hoy (total)</div>
-          <div id="t-hoy-total" class="total-value">$ 0.00</div>
+      <div class="totales">
+        <div><strong>Total por productos:</strong> $ <span id="total-productos">0.00</span></div>
+        <div><strong>Comisión estimada:</strong> $ <span id="total-comision">0.00</span></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTOS DE LA VENTA -->
+    <section class="card">
+      <h2 class="subtitulo">Productos de esta venta</h2>
+
+      <div class="row-2">
+        <div>
+          <label for="item-producto">Producto</label>
+          <select id="item-producto">
+            <option value="">Elegí un producto...</option>
+          </select>
         </div>
-        <div class="total-box">
-          <div class="total-label">Hoy (comisiones)</div>
-          <div id="t-hoy-comision" class="total-value">$ 0.00</div>
-        </div>
-        <div class="total-box">
-          <div class="total-label">Este mes (total)</div>
-          <div id="t-mes-total" class="total-value">$ 0.00</div>
-        </div>
-        <div class="total-box">
-          <div class="total-label">Este mes (comisiones)</div>
-          <div id="t-mes-comision" class="total-value">$ 0.00</div>
+        <div>
+          <label for="item-cantidad">Cantidad</label>
+          <input id="item-cantidad" type="number" min="1" value="1" />
         </div>
       </div>
 
-      <h3 style="margin-top:0.8rem; font-size:0.9rem;">Por revendedor (mes)</h3>
-      <div id="chips-revendedores"></div>
+      <button id="btn-agregar-item" class="btn btn-ghost" style="margin-top:.7rem;">
+        Agregar producto a la venta
+      </button>
 
-      <h3 style="margin-top:0.8rem; font-size:0.9rem;">Últimas ventas</h3>
-      <div class="tabla-wrap">
+      <div class="items-wrap">
         <table>
           <thead>
             <tr>
-              <th>Fecha</th>
-              <th>Revendedor</th>
-              <th>Cliente</th>
-              <th>Total</th>
-              <th>%</th>
-              <th>Comisión</th>
+              <th>Producto</th>
+              <th>Cant.</th>
+              <th>Precio</th>
+              <th>Subtotal</th>
+              <th></th>
             </tr>
           </thead>
-          <tbody id="tabla-ventas">
-            <tr><td colspan="6">Cargando...</td></tr>
+          <tbody id="items-body">
+            <tr>
+              <td colspan="5" style="text-align:center;color:#9ca3af;">
+                Todavía no agregaste productos a esta venta.
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
-    </div>
+
+      <p style="font-size:.78rem;color:#9ca3af;margin-top:.5rem;">
+        Tip: podés armar la venta solo con productos, y el total se calcula solo, o cargar un total manual arriba si querés redondear.
+      </p>
+    </section>
   </div>
 
-<script>
-  const fechaInput = document.getElementById('v-fecha');
-  const selRevendedor = document.getElementById('v-revendedor');
-  const selCliente = document.getElementById('v-cliente');
-  const inpClienteTexto = document.getElementById('v-cliente-texto');
-  const selProducto = document.getElementById('v-producto');
-  const inpCantidadProd = document.getElementById('v-cantidad-prod');
-  const inpTotal = document.getElementById('v-total');
-  const inpComision = document.getElementById('v-comision');
-  const inpDetalle = document.getElementById('v-detalle');
-  const statusVenta = document.getElementById('status-venta');
+  <script>
+    const selRevendedor = document.getElementById('v-revendedor');
+    const inpFecha = document.getElementById('v-fecha');
+    const inpCliente = document.getElementById('v-cliente');
+    const inpComision = document.getElementById('v-comision');
+    const inpTotalManual = document.getElementById('v-total-manual');
+    const inpDetalle = document.getElementById('v-detalle');
+    const ventaStatus = document.getElementById('venta-status');
+    const totalProductosEl = document.getElementById('total-productos');
+    const totalComisionEl = document.getElementById('total-comision');
 
-  const tHoyTotal = document.getElementById('t-hoy-total');
-  const tHoyComision = document.getElementById('t-hoy-comision');
-  const tMesTotal = document.getElementById('t-mes-total');
-  const tMesComision = document.getElementById('t-mes-comision');
-  const chipsRevendedores = document.getElementById('chips-revendedores');
-  const tablaVentas = document.getElementById('tabla-ventas');
+    const selItemProducto = document.getElementById('item-producto');
+    const inpItemCantidad = document.getElementById('item-cantidad');
+    const btnAgregarItem = document.getElementById('btn-agregar-item');
+    const itemsBody = document.getElementById('items-body');
+    const btnGuardarVenta = document.getElementById('btn-guardar-venta');
 
-  let listaVentas = [];
+    let listaRevendedores = [];
+    let listaProductos = [];
+    let ventaItems = [];
 
-  // Fecha por defecto: hoy
-  (function setFechaHoy() {
-    const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
-    const dd = String(hoy.getDate()).padStart(2, '0');
-    fechaInput.value = `${yyyy}-${mm}-${dd}`;
-  })();
-
-  // Cargar revendedores
-  function cargarRevendedores() {
-    fetch('/api/revendedores')
-      .then(r => r.json())
-      .then(data => {
-        selRevendedor.innerHTML = '<option value="">(Sin revendedor)</option>';
-        (Array.isArray(data) ? data : []).forEach(r => {
-          const opt = document.createElement('option');
-          opt.value = r.id;
-          opt.textContent = r.nombre + (r.zona ? ` (${r.zona})` : '');
-          selRevendedor.appendChild(opt);
-        });
-      })
-      .catch(() => {
-        selRevendedor.innerHTML = '<option value="">(Error cargando revendedores)</option>';
-      });
-  }
-
-  // Cargar clientes
-  function cargarClientes() {
-    fetch('/api/clientes')
-      .then(r => r.json())
-      .then(data => {
-        selCliente.innerHTML = '<option value="">(Sin cliente / usar texto)</option>';
-        (Array.isArray(data) ? data : []).forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.nombre + (c.zona ? ` (${c.zona})` : '');
-          selCliente.appendChild(opt);
-        });
-      })
-      .catch(() => {
-        selCliente.innerHTML = '<option value="">(Error cargando clientes)</option>';
-      });
-  }
-
-  // Cargar productos
-  function cargarProductos() {
-    fetch('/api/productos')
-      .then(r => r.json())
-      .then(data => {
-        selProducto.innerHTML = '<option value="">(Sin producto específico)</option>';
-        (Array.isArray(data) ? data : []).forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = `#${p.id} - ${p.nombre} ($${Number(p.precio || 0).toFixed(2)})`;
-          selProducto.appendChild(opt);
-        });
-      })
-      .catch(() => {
-        selProducto.innerHTML = '<option value="">(Error cargando productos)</option>';
-      });
-  }
-
-  // Cargar ventas
-  function cargarVentas() {
-    fetch('/api/ventas')
-      .then(r => r.json())
-      .then(data => {
-        listaVentas = Array.isArray(data) ? data : [];
-        renderVentasTabla();
-        calcularTotales();
-      })
-      .catch(() => {
-        tablaVentas.innerHTML = '<tr><td colspan="6">Error cargando ventas.</td></tr>';
-      });
-  }
-
-  function renderVentasTabla() {
-    if (!listaVentas.length) {
-      tablaVentas.innerHTML = '<tr><td colspan="6">Todavía no hay ventas cargadas.</td></tr>';
-      return;
+    function setStatus(msg, ok) {
+      ventaStatus.textContent = msg || '';
+      ventaStatus.className = 'status' + (msg ? (ok ? ' status-ok' : ' status-error') : '');
     }
 
-    const filas = listaVentas
-      .slice()
-      .sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''))
-      .reverse()
-      .map(v => {
-        const fecha = v.fecha || '';
-        const rev = v.revendedor_nombre || '';
-        const cli = v.cliente || '';
-        const total = Number(v.total || 0);
-        const porc = Number(v.comision_porcentaje || 0);
-        const comi = Number(v.comision_calculada || 0);
+    function formatearPrecio(n) {
+      return Number(n || 0).toFixed(2);
+    }
+
+    function initFechaHoy() {
+      const hoy = new Date();
+      const y = hoy.getFullYear();
+      const m = String(hoy.getMonth() + 1).padStart(2, '0');
+      const d = String(hoy.getDate()).padStart(2, '0');
+      inpFecha.value = `${y}-${m}-${d}`;
+    }
+
+    function cargarRevendedores() {
+      fetch('/api/revendedores')
+        .then(r => r.json())
+        .then(data => {
+          listaRevendedores = Array.isArray(data) ? data : [];
+          const activos = listaRevendedores.filter(r => r.activo !== false);
+          selRevendedor.innerHTML = '<option value="">Elegí un revendedor...</option>' +
+            activos.map(r =>
+              `<option value="${r.id}">${r.nombre || ('Rev ' + r.id)}${r.zona ? ' · ' + r.zona : ''}</option>`
+            ).join('');
+        })
+        .catch(() => {
+          setStatus('Error cargando revendedores.', false);
+        });
+    }
+
+    function cargarProductos() {
+      fetch('/api/productos/activos')
+        .then(r => r.json())
+        .then(data => {
+          listaProductos = Array.isArray(data) ? data : [];
+          selItemProducto.innerHTML = '<option value="">Elegí un producto...</option>' +
+            listaProductos.map(p =>
+              `<option value="${p.id}">#${p.id} · ${p.nombre || 'Sin nombre'} ($${formatearPrecio(p.precio)})</option>`
+            ).join('');
+        })
+        .catch(() => {
+          setStatus('Error cargando productos.', false);
+        });
+    }
+
+    function renderItems() {
+      if (!ventaItems.length) {
+        itemsBody.innerHTML =
+          '<tr><td colspan="5" style="text-align:center;color:#9ca3af;">Todavía no agregaste productos a esta venta.</td></tr>';
+        totalProductosEl.textContent = '0.00';
+        totalComisionEl.textContent = '0.00';
+        return;
+      }
+
+      let total = 0;
+      const filas = ventaItems.map((it, idx) => {
+        const sub = it.cantidad * it.precio;
+        total += sub;
         return `
           <tr>
-            <td>${fecha}</td>
-            <td>${rev}</td>
-            <td>${cli}</td>
-            <td>$ ${total.toFixed(2)}</td>
-            <td>${porc}%</td>
-            <td>$ ${comi.toFixed(2)}</td>
+            <td>${it.nombre}</td>
+            <td>${it.cantidad}</td>
+            <td>$ ${formatearPrecio(it.precio)}</td>
+            <td>$ ${formatearPrecio(sub)}</td>
+            <td>
+              <button class="btn-mini btn-danger" data-idx="${idx}" data-role="quitar">
+                Quitar
+              </button>
+            </td>
           </tr>
         `;
-      })
-      .join('');
+      }).join('');
 
-    tablaVentas.innerHTML = filas;
-  }
+      itemsBody.innerHTML = filas;
+      totalProductosEl.textContent = formatearPrecio(total);
 
-  function calcularTotales() {
-    const hoy = new Date();
-    const yyyy = hoy.getFullYear();
-    const mm = hoy.getMonth() + 1;
-    const dd = hoy.getDate();
+      const porc = Number(inpComision.value || 0);
+      const comision = Math.round((total * porc) / 100);
+      totalComisionEl.textContent = formatearPrecio(comision);
+    }
 
-    let totHoy = 0;
-    let comiHoy = 0;
-    let totMes = 0;
-    let comiMes = 0;
-
-    const porRevendedor = {};
-
-    listaVentas.forEach(v => {
-      const fecha = v.fecha || '';
-      if (!fecha) return;
-      const [y, m, d] = fecha.split('-').map(Number);
-      const total = Number(v.total || 0);
-      const comi = Number(v.comision_calculada || 0);
-      const rev = v.revendedor_nombre || 'Sin revendedor';
-
-      if (y === yyyy && m === mm) {
-        totMes += total;
-        comiMes += comi;
-
-        if (!porRevendedor[rev]) {
-          porRevendedor[rev] = { total: 0, comision: 0 };
-        }
-        porRevendedor[rev].total += total;
-        porRevendedor[rev].comision += comi;
+    btnAgregarItem.addEventListener('click', () => {
+      const prodId = Number(selItemProducto.value || 0);
+      const cant = Number(inpItemCantidad.value || 0);
+      if (!prodId) {
+        setStatus('Elegí un producto para agregar.', false);
+        return;
       }
-
-      if (y === yyyy && m === mm && d === dd) {
-        totHoy += total;
-        comiHoy += comi;
+      if (!cant || cant <= 0) {
+        setStatus('La cantidad debe ser mayor a cero.', false);
+        return;
       }
+      const prod = listaProductos.find(p => Number(p.id) === prodId);
+      if (!prod) {
+        setStatus('Producto no encontrado.', false);
+        return;
+      }
+      // Si ya existe en la lista, sumamos cantidad
+      const existente = ventaItems.find(it => it.producto_id === prodId);
+      if (existente) {
+        existente.cantidad += cant;
+      } else {
+        ventaItems.push({
+          producto_id: prodId,
+          nombre: prod.nombre || ('Producto ' + prodId),
+          precio: Number(prod.precio || 0),
+          cantidad: cant
+        });
+      }
+      setStatus('', true);
+      renderItems();
     });
 
-    tHoyTotal.textContent = '$ ' + totHoy.toFixed(2);
-    tHoyComision.textContent = '$ ' + comiHoy.toFixed(2);
-    tMesTotal.textContent = '$ ' + totMes.toFixed(2);
-    tMesComision.textContent = '$ ' + comiMes.toFixed(2);
+    itemsBody.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-role="quitar"]');
+      if (!btn) return;
+      const idx = Number(btn.getAttribute('data-idx'));
+      if (isNaN(idx)) return;
+      ventaItems.splice(idx, 1);
+      renderItems();
+    });
 
-    // chips de revendedores
-    const nombres = Object.keys(porRevendedor);
-    if (!nombres.length) {
-      chipsRevendedores.innerHTML = '<div style="font-size:.8rem;color:#9ca3af;">Sin datos este mes.</div>';
-      return;
-    }
-    chipsRevendedores.innerHTML = nombres.map(n => {
-      const info = porRevendedor[n];
-      return `
-        <span class="chip">
-          <strong>${n}</strong> ·
-          $${info.total.toFixed(0)} / $${info.comision.toFixed(0)}
-        </span>
-      `;
-    }).join('');
-  }
+    btnGuardarVenta.addEventListener('click', () => {
+      const revId = Number(selRevendedor.value || 0);
+      if (!revId) {
+        setStatus('Elegí un revendedor para la venta.', false);
+        return;
+      }
+      const rev = listaRevendedores.find(r => Number(r.id) === revId);
+      const revNombre = rev ? rev.nombre || '' : '';
 
-  // Guardar venta
-  document.getElementById('btn-guardar-venta').addEventListener('click', () => {
-    statusVenta.textContent = '';
-    statusVenta.className = 'status';
+      const fecha = inpFecha.value || '';
+      const clienteTexto = inpCliente.value.trim();
+      const comisionPorc = Number(inpComision.value || 0);
+      let totalNum = Number(inpTotalManual.value || 0);
 
-    const fecha = fechaInput.value;
-    const revId = selRevendedor.value;
-    const revNombre = selRevendedor.options[selRevendedor.selectedIndex]?.text || '';
-    const clienteId = selCliente.value;
-    const clienteTexto = inpClienteTexto.value.trim();
-    const productoId = selProducto.value;
-    const cantidadProd = inpCantidadProd.value;
-    const total = inpTotal.value;
-    const comision = inpComision.value;
-    const detalle = inpDetalle.value;
+      if (!ventaItems.length && totalNum <= 0) {
+        setStatus('Agregá al menos un producto o cargá un total manual.', false);
+        return;
+      }
 
-    if (!total) {
-      statusVenta.textContent = 'Falta el total.';
-      statusVenta.className = 'status status-error';
-      return;
-    }
+      // Si no hay total manual, calculamos desde productos
+      if (totalNum <= 0 && ventaItems.length) {
+        totalNum = ventaItems.reduce((acc, it) => acc + it.cantidad * it.precio, 0);
+      }
 
-    const payload = {
-      fecha,
-      revendedor_id: revId || null,
-      revendedor_nombre: revNombre || '',
-      cliente_id: clienteId || null,
-      cliente_texto: clienteTexto || '',
-      producto_id: productoId || null,
-      cantidad_producto: cantidadProd || 0,
-      total,
-      comision_porcentaje: comision || 0,
-      detalle
-    };
+      const detalleExtra = inpDetalle.value.trim();
+      let detalleTexto = '';
+      if (ventaItems.length) {
+        detalleTexto += 'Detalle de productos:\n';
+        ventaItems.forEach(it => {
+          detalleTexto += `- ${it.nombre} x${it.cantidad} ($${formatearPrecio(it.precio)} c/u)\n`;
+        });
+      }
+      if (detalleExtra) {
+        detalleTexto += '\nNotas:\n' + detalleExtra;
+      }
 
-    fetch('/api/ventas', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-      .then(r => r.json())
-      .then(data => {
-        statusVenta.textContent = 'Venta guardada correctamente.';
-        statusVenta.className = 'status status-ok';
+      // armamos items solo con id y cantidad para el backend
+      const itemsPayload = ventaItems.map(it => ({
+        producto_id: it.producto_id,
+        cantidad: it.cantidad
+      }));
 
-        // limpiar algunos campos
-        inpCantidadProd.value = '';
-        inpDetalle.value = '';
-        inpClienteTexto.value = '';
-        selProducto.value = '';
-        selCliente.value = '';
+      const body = {
+        revendedor_id: revId,
+        revendedor_nombre: revNombre,
+        fecha,
+        total: totalNum,
+        comision_porcentaje: comisionPorc,
+        cliente_id: null,
+        cliente_texto: clienteTexto,
+        detalle: detalleTexto,
+        items: itemsPayload
+      };
 
-        // recargar ventas
-        cargarVentas();
+      setStatus('Guardando venta...', true);
+
+      fetch('/api/ventas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
       })
-      .catch(() => {
-        statusVenta.textContent = 'Error al guardar la venta.';
-        statusVenta.className = 'status status-error';
-      });
-  });
+        .then(r => r.json())
+        .then(data => {
+          setStatus('Venta guardada correctamente.', true);
+          // Limpiamos solo la parte de items y totales, dejamos revendedor/fecha para cargar varias seguidas
+          ventaItems = [];
+          renderItems();
+          inpTotalManual.value = '';
+          inpDetalle.value = '';
+          inpCliente.value = '';
+        })
+        .catch(() => {
+          setStatus('Error al guardar la venta.', false);
+        });
+    });
 
-  // Init
-  (function init() {
-    cargarRevendedores();
-    cargarClientes();
-    cargarProductos();
-    cargarVentas();
-  })();
-</script>
-
+    (function init() {
+      initFechaHoy();
+      cargarRevendedores();
+      cargarProductos();
+      renderItems();
+    })();
+  </script>
 </body>
 </html>
