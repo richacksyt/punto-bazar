@@ -28,7 +28,7 @@
       font-size: 0.85rem;
       color: #cbd5e1;
     }
-    input, textarea, select {
+    input, textarea {
       width: 100%;
       padding: 0.45rem 0.6rem;
       border-radius: 0.5rem;
@@ -144,7 +144,7 @@
 <script>
 let EDITANDO_ID = null;
 
-// ---------------- CARGAR LISTA ----------------
+// Cargar lista
 function cargarProductos() {
   fetch("/api/productos")
     .then(r => r.json())
@@ -195,7 +195,7 @@ function cargarProductos() {
 
 cargarProductos();
 
-// ---------------- SUBIR IMAGEN A CLOUDINARY ----------------
+// Subir imagen a Cloudinary
 document.getElementById("btn-subir").addEventListener("click", async () => {
   const fileInput = document.getElementById("file-imagen");
   const status = document.getElementById("status-imagen");
@@ -231,7 +231,7 @@ document.getElementById("btn-subir").addEventListener("click", async () => {
   }
 });
 
-// ---------------- GUARDAR PRODUCTO ----------------
+// Guardar producto (crear/editar)
 document.getElementById("btn-guardar").addEventListener("click", () => {
   const prod = {
     nombre: document.getElementById("p-nombre").value,
@@ -262,7 +262,7 @@ document.getElementById("btn-guardar").addEventListener("click", () => {
     });
 });
 
-// ---------------- LIMPIAR ----------------
+// Limpiar
 function limpiarFormulario() {
   EDITANDO_ID = null;
   document.getElementById("form-titulo").innerText = "Nuevo producto";
@@ -272,7 +272,7 @@ function limpiarFormulario() {
 
 document.getElementById("btn-limpiar").addEventListener("click", limpiarFormulario);
 
-// ---------------- ACCIONES EN TABLA ----------------
+// Acciones en tabla
 document.getElementById("tabla-wrap").addEventListener("click", (e) => {
   const id = e.target.getAttribute("data-id");
   const rol = e.target.getAttribute("data-rol");
