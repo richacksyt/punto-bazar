@@ -93,82 +93,6 @@
       margin: 0 0 .6rem;
     }
 
-    /* OFERTAS DEL DÍA */
-    .offers-strip {
-      margin: 0.4rem 0 0.6rem;
-      padding: 0.6rem 0.7rem;
-      border-radius: 0.9rem;
-      border: 1px solid rgba(129, 140, 248, 0.7);
-      background: radial-gradient(circle at left, rgba(79,70,229,0.25), rgba(15,23,42,0.96));
-      box-shadow: 0 18px 40px rgba(15,23,42,0.9);
-    }
-    .offers-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.4rem;
-      margin-bottom: 0.4rem;
-    }
-    .offers-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
-    .offers-title span.icon {
-      font-size: 1rem;
-    }
-    .offers-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-    .offers-scroll {
-      display: flex;
-      gap: 0.4rem;
-      overflow-x: auto;
-      padding-bottom: 0.1rem;
-      scrollbar-width: thin;
-    }
-    .offer-pill {
-      min-width: 160px;
-      max-width: 200px;
-      background: rgba(15,23,42,0.98);
-      border-radius: 0.8rem;
-      border: 1px solid rgba(148,163,184,0.3);
-      padding: 0.45rem 0.55rem;
-      font-size: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-      cursor: pointer;
-    }
-    .offer-pill-name {
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .offer-pill-price {
-      display: flex;
-      align-items: baseline;
-      gap: 0.25rem;
-    }
-    .offer-pill-price-new {
-      font-weight: 700;
-      font-size: 0.8rem;
-      color: #c4b5fd;
-    }
-    .offer-pill-price-old {
-      font-size: 0.7rem;
-      text-decoration: line-through;
-      color: #9ca3af;
-    }
-    .offer-pill-tag {
-      font-size: 0.7rem;
-      color: #bbf7d0;
-    }
-
     /* Filtros */
     .filter-panel {
       background: var(--card-soft);
@@ -221,6 +145,96 @@
       background: rgba(76, 29, 149, 0.7);
     }
 
+    /* OFERTAS DEL DÍA */
+    .ofertas-card {
+      margin: 0.5rem 0 0.7rem;
+      padding: 0.7rem 0.7rem 0.5rem;
+      border-radius: 0.9rem;
+      border: 1px solid rgba(251,191,36,0.8);
+      background: radial-gradient(circle at left top, rgba(251,191,36,0.25), rgba(15,23,42,0.98));
+      box-shadow: 0 18px 40px rgba(202,138,4,0.5);
+    }
+    .ofertas-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:0.45rem;
+      gap:0.4rem;
+    }
+    .ofertas-title {
+      font-size:0.9rem;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      gap:0.3rem;
+    }
+    .ofertas-title span.icon {
+      font-size:1.1rem;
+    }
+    .ofertas-sub {
+      font-size:0.78rem;
+      color:#facc15;
+    }
+    .ofertas-list {
+      display:flex;
+      gap:0.5rem;
+      overflow-x:auto;
+      padding-bottom:0.2rem;
+    }
+    .oferta-item {
+      min-width: 180px;
+      max-width: 220px;
+      background: rgba(15,23,42,0.96);
+      border-radius:0.8rem;
+      border:1px solid rgba(148,163,184,0.35);
+      padding:0.4rem 0.5rem 0.5rem;
+      font-size:0.8rem;
+      flex-shrink:0;
+    }
+    .oferta-img {
+      border-radius:0.65rem;
+      overflow:hidden;
+      background:radial-gradient(circle at top,#1f2937,#020617);
+      height:110px;
+      margin-bottom:0.3rem;
+    }
+    .oferta-img img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+    .oferta-nombre {
+      font-weight:600;
+      margin-bottom:0.1rem;
+    }
+    .oferta-precio-row {
+      display:flex;
+      align-items:baseline;
+      gap:0.25rem;
+    }
+    .oferta-precio-main {
+      color:#fde68a;
+      font-weight:700;
+    }
+    .oferta-precio-old {
+      text-decoration:line-through;
+      color:#9ca3af;
+      font-size:0.75rem;
+    }
+    .oferta-btn {
+      margin-top:0.3rem;
+      display:inline-flex;
+      align-items:center;
+      gap:0.2rem;
+      padding:0.25rem 0.6rem;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-size:0.75rem;
+      background:linear-gradient(135deg,#f97316,#ec4899);
+      color:#fff;
+    }
+
     /* Grid de productos */
     .cat-grid {
       display: grid;
@@ -238,6 +252,7 @@
       transform: translateY(0);
       transition: transform 0.12s, box-shadow 0.12s, border-color 0.12s;
       position: relative;
+      cursor:pointer;
     }
     .cat-card:hover {
       transform: translateY(-3px);
@@ -266,7 +281,7 @@
       position: relative;
       padding-top: 70%;
       background: radial-gradient(circle at top, #1f2937, #020617);
-      cursor: pointer;
+      overflow:hidden;
     }
     .cat-img-wrap img {
       position: absolute;
@@ -284,7 +299,6 @@
     .cat-name {
       font-size: 0.9rem;
       font-weight: 600;
-      cursor: pointer;
     }
     .cat-cat {
       font-size: 0.75rem;
@@ -321,36 +335,12 @@
       gap: 0.25rem;
       font-size: 0.7rem;
       color: var(--muted);
-      margin-top: 0.15rem;
     }
     .tag {
       border-radius: 999px;
       border: 1px solid rgba(55,65,81,0.9);
       padding: 0.05rem 0.45rem;
     }
-
-    /* SELECTOR COLORES */
-    .color-chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.25rem;
-      margin-top: 0.2rem;
-    }
-    .color-chip {
-      border-radius: 999px;
-      border: 1px solid rgba(75,85,99,0.9);
-      padding: 0.12rem 0.5rem;
-      font-size: 0.7rem;
-      background: rgba(15,23,42,0.9);
-      color: #e5e7eb;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .color-chip-active {
-      border-color: #a855f7;
-      background: rgba(67,56,202,0.85);
-    }
-
     .cat-actions {
       display: flex;
       gap: 0.3rem;
@@ -454,112 +444,6 @@
       resize: vertical;
     }
 
-    /* Modal detalle */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,0.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
-    }
-    .modal {
-      background: var(--card);
-      border-radius: 1rem;
-      border: 1px solid var(--borde);
-      max-width: 700px;
-      width: 100%;
-      margin: 0 0.5rem;
-      box-shadow: 0 24px 70px rgba(0,0,0,0.95);
-      display: flex;
-      flex-direction: column;
-      max-height: 90vh;
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.7rem 0.9rem 0.4rem;
-      border-bottom: 1px solid rgba(31,41,55,0.9);
-    }
-    .modal-body {
-      padding: 0.7rem 0.9rem 0.9rem;
-      overflow-y: auto;
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0,1.2fr);
-      gap: 0.7rem;
-    }
-    .modal-footer {
-      padding: 0.6rem 0.9rem;
-      border-top: 1px solid rgba(31,41,55,0.9);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-    .modal-close {
-      border-radius: 999px;
-      border: 1px solid rgba(75,85,99,0.9);
-      background: transparent;
-      color: var(--muted);
-      font-size: 0.75rem;
-      padding: 0.3rem 0.65rem;
-      cursor: pointer;
-    }
-    .modal-img-wrap {
-      background: radial-gradient(circle at top,#020617,#000);
-      border-radius: 0.8rem;
-      border: 1px solid rgba(30,64,175,0.7);
-      padding: 0.5rem;
-      text-align: center;
-      cursor: zoom-in;
-    }
-    .modal-img-wrap img {
-      max-width: 100%;
-      max-height: 260px;
-      object-fit: contain;
-      border-radius: 0.7rem;
-      background: #020617;
-    }
-    .modal-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-      margin-top: 0.35rem;
-      font-size: 0.72rem;
-    }
-    .modal-title {
-      font-size: 1.05rem;
-      font-weight: 600;
-      margin-bottom: 0.15rem;
-    }
-    .modal-cat {
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-bottom: 0.4rem;
-    }
-    .modal-desc {
-      font-size: 0.86rem;
-      color: #e5e7eb;
-      white-space: pre-wrap;
-    }
-    .modal-price {
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
-    }
-    .modal-variants {
-      margin-top: 0.5rem;
-      font-size: 0.8rem;
-    }
-    .variant-label {
-      display: block;
-      margin-bottom: 0.15rem;
-      color: #cbd5e1;
-    }
-
     @media (max-width: 900px) {
       .cat-layout {
         grid-template-columns: minmax(0, 1fr);
@@ -569,9 +453,6 @@
         position: static;
       }
       .filter-panel {
-        grid-template-columns: minmax(0,1fr);
-      }
-      .modal-body {
         grid-template-columns: minmax(0,1fr);
       }
     }
@@ -602,22 +483,6 @@
       <p>
         Elegí tus productos, armá el pedido y enviá por WhatsApp. Podés filtrar por categoría, rango de precio y ver ofertas destacadas.
       </p>
-
-      <!-- OFERTAS DEL DÍA -->
-      <section id="ofertas-dia" class="offers-strip" style="display:none;">
-        <div class="offers-header">
-          <div class="offers-title">
-            <span class="icon">🌟</span>
-            <span>Ofertas del día</span>
-          </div>
-          <div class="offers-sub">
-            Descuentos activos ahora mismo en el catálogo.
-          </div>
-        </div>
-        <div class="offers-scroll" id="offers-scroll">
-          <!-- pills dinámicas -->
-        </div>
-      </section>
 
       <!-- FILTROS AVANZADOS -->
       <section class="filter-panel">
@@ -652,9 +517,19 @@
         </div>
       </section>
 
-      <div class="filter-chip-row" id="chip-row">
-        <!-- chips dinámicos -->
-      </div>
+      <div class="filter-chip-row" id="chip-row"></div>
+
+      <!-- OFERTAS DEL DÍA -->
+      <section id="ofertas-section" class="ofertas-card" style="display:none;">
+        <div class="ofertas-header">
+          <div class="ofertas-title">
+            <span class="icon">🔥</span>
+            <span>Ofertas del día</span>
+          </div>
+          <div class="ofertas-sub" id="ofertas-sub"></div>
+        </div>
+        <div class="ofertas-list" id="ofertas-list"></div>
+      </section>
 
       <!-- GRID -->
       <div class="cat-grid" id="grid-productos">
@@ -690,41 +565,6 @@
         </div>
       </div>
     </aside>
-  </div>
-
-  <!-- MODAL DETALLE -->
-  <div id="modal-backdrop" class="modal-backdrop">
-    <div class="modal">
-      <div class="modal-header">
-        <div style="font-size:.84rem;color:#9ca3af;">Ficha de producto</div>
-        <button id="modal-close" class="modal-close">Cerrar</button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-img-wrap" id="modal-img-wrap">
-          <img id="modal-img" src="" alt="" />
-        </div>
-        <div>
-          <div class="modal-title" id="modal-title">Producto</div>
-          <div class="modal-cat" id="modal-cat">Categoría</div>
-          <div class="modal-desc" id="modal-desc">Descripción...</div>
-          <div class="modal-tags" id="modal-tags"></div>
-
-          <div class="modal-variants" id="modal-colors"></div>
-
-          <div class="modal-price" id="modal-price"></div>
-          <div style="margin-top:.5rem;">
-            <label style="font-size:.8rem;color:#cbd5e1;">Cantidad</label>
-            <input type="number" id="modal-qty" min="1" value="1"
-                   style="width:80px;border-radius:999px;border:1px solid rgba(75,85,99,0.9);background:#020617;color:#e5e7eb;padding:.25rem .4rem;font-size:.8rem;" />
-            <button id="modal-add" class="btn btn-main" style="margin-left:.3rem;">Agregar al pedido</button>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <div id="modal-oferta"></div>
-        <div id="modal-stock-info"></div>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -785,30 +625,9 @@
     var fOrden = document.getElementById('f-orden');
     var chipRow = document.getElementById('chip-row');
 
-    var ofertasDiaSection = document.getElementById('ofertas-dia');
-    var offersScroll = document.getElementById('offers-scroll');
-
-    // Modal
-    var modalBackdrop = document.getElementById('modal-backdrop');
-    var modalClose = document.getElementById('modal-close');
-    var modalImgWrap = document.getElementById('modal-img-wrap');
-    var modalImg = document.getElementById('modal-img');
-    var modalTitle = document.getElementById('modal-title');
-    var modalCat = document.getElementById('modal-cat');
-    var modalDesc = document.getElementById('modal-desc');
-    var modalTags = document.getElementById('modal-tags');
-    var modalPrice = document.getElementById('modal-price');
-    var modalOferta = document.getElementById('modal-oferta');
-    var modalStockInfo = document.getElementById('modal-stock-info');
-    var modalQty = document.getElementById('modal-qty');
-    var modalAdd = document.getElementById('modal-add');
-    var modalColors = document.getElementById('modal-colors');
-    var modalProductoActual = null;
-    var modalColorSeleccionado = '';
-
-    function formatearPrecio(n) {
-      return Number(n || 0).toFixed(2);
-    }
+    var ofertasSection = document.getElementById('ofertas-section');
+    var ofertasList = document.getElementById('ofertas-list');
+    var ofertasSub = document.getElementById('ofertas-sub');
 
     function calcularPrecioOferta(base, tipo, valor) {
       var precioBase = Number(base || 0);
@@ -824,31 +643,7 @@
       return precioBase;
     }
 
-    // Categoría automática según nombre si no viene del backend
-    function asignarCategoriaAuto(p) {
-      if (p.categoria && String(p.categoria).trim() !== '') return;
-      var nombre = (p.nombre || '').toLowerCase();
-      if (!nombre) {
-        p.categoria = 'Varios';
-        return;
-      }
-      if (nombre.includes('mate') || nombre.includes('termo') || nombre.includes('bombilla')) {
-        p.categoria = 'Mates y termos';
-      } else if (nombre.includes('taza') || nombre.includes('jarra') || nombre.includes('plato') || nombre.includes('vaso')) {
-        p.categoria = 'Vajilla y cocina';
-      } else if (nombre.includes('juguete') || nombre.includes('muñeca') || nombre.includes('auto') || nombre.includes('bloque')) {
-        p.categoria = 'Juguetes';
-      } else if (nombre.includes('luz') || nombre.includes('lampara') || nombre.includes('led')) {
-        p.categoria = 'Luces y deco';
-      } else if (nombre.includes('organizador') || nombre.includes('caja') || nombre.includes('canasto') || nombre.includes('orden')) {
-        p.categoria = 'Organización';
-      } else if (nombre.includes('toalla') || nombre.includes('sabanas') || nombre.includes('alfombra')) {
-        p.categoria = 'Textil hogar';
-      } else {
-        p.categoria = 'Varios';
-      }
-    }
-
+    // ---- CATEGORÍAS + CHIPS ----
     function renderCategorias() {
       var cats = ['Todos'];
       todosProductos.forEach(function (p) {
@@ -876,6 +671,7 @@
       renderProductos();
     });
 
+    // ---- FILTROS + ORDEN ----
     function aplicarFiltrosOrden() {
       var lista = todosProductos.slice();
       var q = (fBuscar.value || '').toLowerCase().trim();
@@ -944,58 +740,69 @@
       el.addEventListener('change', renderProductos);
     });
 
-    // Render del cartel de OFERTAS DEL DÍA
-    function renderOfertasDelDia() {
-      if (!ofertasDiaSection || !offersScroll) return;
+    // ---- RENDER OFERTAS DEL DÍA ----
+    function renderOfertas() {
       var ofertas = todosProductos.filter(function (p) {
         var base = Number(p.precio || 0);
         var final = calcularPrecioOferta(base, p.oferta_tipo || '', p.oferta_valor || 0);
-        return p.oferta_tipo && p.oferta_valor && final < base;
+        return p.oferta_tipo && p.oferta_valor && final > 0 && final < base;
       });
 
       if (!ofertas.length) {
-        ofertasDiaSection.style.display = 'none';
+        ofertasSection.style.display = 'none';
         return;
       }
 
-      ofertas.sort(function (a, b) {
-        var baseA = Number(a.precio || 0);
-        var baseB = Number(b.precio || 0);
-        var finalA = calcularPrecioOferta(baseA, a.oferta_tipo || '', a.oferta_valor || 0);
-        var finalB = calcularPrecioOferta(baseB, b.oferta_tipo || '', b.oferta_valor || 0);
-        var descA = baseA - finalA;
-        var descB = baseB - finalB;
-        return descB - descA;
-      });
+      ofertasSection.style.display = 'block';
+      ofertasSub.textContent =
+        ofertas.length + ' producto' + (ofertas.length > 1 ? 's con descuento activo' : ' con descuento activo');
 
-      ofertas = ofertas.slice(0, 15); // limite
+      var maxMostrar = 12;
+      var subset = ofertas.slice(0, maxMostrar);
 
-      offersScroll.innerHTML = ofertas.map(function (p) {
+      ofertasList.innerHTML = subset.map(function (p) {
         var base = Number(p.precio || 0);
         var final = calcularPrecioOferta(base, p.oferta_tipo || '', p.oferta_valor || 0);
-        var etiqueta = p.oferta_etiqueta || '';
-        var descuentoTxt = '';
-        if (p.oferta_tipo === 'porcentaje') {
-          descuentoTxt = '-' + Number(p.oferta_valor || 0).toFixed(0) + '%';
-        } else if (p.oferta_tipo === 'precio' && base > 0 && final < base) {
-          var diff = base - final;
-          var pct = (diff * 100) / base;
-          descuentoTxt = '-' + pct.toFixed(0) + '%';
-        }
-        var tag = etiqueta || descuentoTxt || 'Oferta';
+        var etiqueta = p.oferta_etiqueta || 'OFERTA';
+
         return (
-          '<button class="offer-pill" data-id="' + p.id + '">' +
-            '<div class="offer-pill-name">' + (p.nombre || '') + '</div>' +
-            '<div class="offer-pill-price">' +
-              '<span class="offer-pill-price-new">$ ' + final.toFixed(2) + '</span>' +
-              '<span class="offer-pill-price-old">$ ' + base.toFixed(2) + '</span>' +
+          '<div class="oferta-item">' +
+            '<div class="oferta-img">' +
+              (p.imagen_url
+                ? '<img src="' + p.imagen_url + '" alt="' + (p.nombre || '') +
+                  '" onerror="this.style.opacity=0.3;">'
+                : '') +
             '</div>' +
-            '<div class="offer-pill-tag">🔥 ' + tag + '</div>' +
-          '</button>'
+            '<div class="oferta-nombre">' + (p.nombre || '') + '</div>' +
+            '<div style="font-size:0.72rem;color:#9ca3af;margin-bottom:0.15rem;">' +
+              etiqueta +
+            '</div>' +
+            '<div class="oferta-precio-row">' +
+              '<span class="oferta-precio-main">$ ' + final.toFixed(2) + '</span>' +
+              '<span class="oferta-precio-old">$ ' + base.toFixed(2) + '</span>' +
+            '</div>' +
+            '<button class="oferta-btn" onclick="irAProducto(' + p.id + ')">' +
+              '<span>Ver detalle</span> <span>→</span>' +
+            '</button>' +
+          '</div>'
         );
       }).join('');
+    }
 
-      ofertasDiaSection.style.display = 'block';
+    // ---- GRID PRINCIPAL ----
+    function irAProducto(id) {
+      var url = 'producto.html?id=' + encodeURIComponent(id);
+      if (revId) url += '&rev=' + encodeURIComponent(revId);
+      location.href = url;
+    }
+
+    function agregarDesdeGrid(idProd) {
+      var prod = todosProductos.find(function (p) { return String(p.id) === String(idProd); });
+      if (!prod) return;
+      var input = document.querySelector('.cat-qty[data-id="' + idProd + '"]');
+      var cant = Number(input && input.value ? input.value : 1);
+      if (isNaN(cant) || cant <= 0) cant = 1;
+      agregarAlCarrito(prod, cant);
     }
 
     function renderProductos() {
@@ -1042,31 +849,24 @@
         }
 
         var metaTags = [];
+        if (Array.isArray(p.colores) && p.colores.length) {
+          metaTags.push('Colores: ' + p.colores.join(', '));
+        }
         if (Array.isArray(p.tamanos) && p.tamanos.length) {
           metaTags.push('Tamaños: ' + p.tamanos.join(', '));
         }
 
-        var coloresHtml = '';
-        if (Array.isArray(p.colores) && p.colores.length) {
-          coloresHtml =
-            '<div class="color-chip-row">' +
-              p.colores.map(function (c, idx) {
-                return '<button class="color-chip ' + (idx === 0 ? 'color-chip-active' : '') +
-                  '" data-role="color" data-color="' + c + '">' + c + '</button>';
-              }).join('') +
-            '</div>';
-        }
-
         return (
-          '<div class="cat-card" data-id="' + p.id + '">' +
+          '<div class="cat-card" data-id="' + p.id + '" onclick="irAProducto(' + p.id + ')">' +
             ofertaRibbon +
-            '<div class="cat-img-wrap" data-role="detalle">' +
+            '<div class="cat-img-wrap">' +
               (p.imagen_url
-                ? '<img src="' + p.imagen_url + '" alt="' + (p.nombre || '') + '" onerror="this.style.opacity=0.3;">'
+                ? '<img src="' + p.imagen_url + '" alt="' + (p.nombre || '') +
+                  '" onerror="this.style.opacity=0.3;">'
                 : '') +
             '</div>' +
             '<div class="cat-body">' +
-              '<div class="cat-name" data-role="detalle">' + (p.nombre || '') + '</div>' +
+              '<div class="cat-name">' + (p.nombre || '') + '</div>' +
               '<div class="cat-cat">' + (p.categoria || 'Sin categoría') + '</div>' +
               precioHtml +
               '<div class="' + stockCls + '">' + stockText + '</div>' +
@@ -1075,11 +875,10 @@
                     return '<span class="tag">' + t + '</span>';
                   }).join('') + '</div>'
                 : '') +
-              coloresHtml +
-              '<div class="cat-actions">' +
-                '<input type="number" min="1" value="1" class="cat-qty" data-role="qty" />' +
-                '<button class="btn btn-main" data-role="add">Agregar</button>' +
-                '<button class="btn btn-ghost" data-role="detalle">Ver más</button>' +
+              '<div class="cat-actions" onclick="event.stopPropagation()">' +
+                '<input type="number" min="1" value="1" class="cat-qty" data-id="' + p.id + '" />' +
+                '<button class="btn btn-main" onclick="agregarDesdeGrid(' + p.id + ')">Agregar</button>' +
+                '<button class="btn btn-ghost" onclick="irAProducto(' + p.id + ')">Ver más</button>' +
               '</div>' +
             '</div>' +
           '</div>'
@@ -1087,6 +886,7 @@
       }).join('');
     }
 
+    // ---- CARRITO ----
     function renderCarrito() {
       if (!carrito.length) {
         cartItemsEl.innerHTML = '<div class="cart-empty">Todavía no agregaste productos.</div>';
@@ -1098,15 +898,18 @@
       cartItemsEl.innerHTML = carrito.map(function (item, idx) {
         var sub = item.cantidad * item.precio;
         total += sub;
-        var extra = '';
-        if (item.color) {
-          extra = ' · Color: ' + item.color;
-        }
+        var detalleVar = '';
+        if (item.color) detalleVar += ' · ' + item.color;
+        if (item.tamano) detalleVar += ' · ' + item.tamano;
+
         return (
           '<div class="cart-item">' +
             '<div>' +
               '<div><strong>' + item.nombre + '</strong></div>' +
-              '<div style="color:#9ca3af; font-size:.75rem;">Cant: ' + item.cantidad + extra + '</div>' +
+              (detalleVar
+                ? '<div style="color:#9ca3af; font-size:.7rem;">' + detalleVar + '</div>'
+                : '') +
+              '<div style="color:#9ca3af; font-size:.75rem;">Cant: ' + item.cantidad + '</div>' +
             '</div>' +
             '<div style="text-align:right;">' +
               '<div>$ ' + sub.toFixed(2) + '</div>' +
@@ -1120,7 +923,7 @@
       actualizarBadgeCarrito();
     }
 
-    function agregarAlCarrito(prod, cantidad, colorSeleccionado) {
+    function agregarAlCarrito(prod, cantidad) {
       if (cantidad <= 0) return;
       var precioBase = Number(prod.precio || 0);
       var precioFinal = calcularPrecioOferta(
@@ -1130,11 +933,7 @@
       );
       var precioUsar = precioFinal > 0 ? precioFinal : precioBase;
 
-      var colorKey = colorSeleccionado || '';
-      var existente = carrito.find(function (i) {
-        return String(i.id) === String(prod.id) && (i.color || '') === colorKey;
-      });
-
+      var existente = carrito.find(function (i) { return i.id === prod.id; });
       if (existente) {
         existente.cantidad += cantidad;
       } else {
@@ -1142,8 +941,7 @@
           id: prod.id,
           nombre: prod.nombre,
           precio: Number(precioUsar || 0),
-          cantidad: cantidad,
-          color: colorKey
+          cantidad: cantidad
         });
       }
       guardarCarritoLS();
@@ -1155,9 +953,13 @@
       var msg = 'Hola! Te paso mi pedido de Punto Bazar:%0A%0A';
       carrito.forEach(function (item) {
         var detalleVar = '';
-        if (item.color) detalleVar += ' - Color: ' + item.color;
+        if (item.color) detalleVar += ' · ' + item.color;
+        if (item.tamano) detalleVar += ' · ' + item.tamano;
+
         msg += '• ' + item.nombre + ' x' + item.cantidad +
-          ' - $' + item.precio.toFixed(2) + ' c/u' + detalleVar + '%0A';
+          ' - $' + item.precio.toFixed(2) + ' c/u';
+        if (detalleVar) msg += ' (' + detalleVar.trim() + ')';
+        msg += '%0A';
       });
       var total = carrito.reduce(function (acc, i) {
         return acc + i.cantidad * i.precio;
@@ -1204,165 +1006,7 @@
       renderCarrito();
     });
 
-    // Clicks en grid (productos, colores, agregar, detalle)
-    grid.addEventListener('click', function (e) {
-      var card = e.target.closest('.cat-card');
-      if (!card) return;
-      var id = card.getAttribute('data-id');
-      var roleEl = e.target.closest('[data-role]');
-      var rol = roleEl ? roleEl.getAttribute('data-role') : null;
-
-      var prod = todosProductos.find(function (p) {
-        return String(p.id) === String(id);
-      });
-      if (!prod) return;
-
-      // selección de color
-      if (rol === 'color') {
-        var row = roleEl.parentElement;
-        if (!row) return;
-        var chips = row.querySelectorAll('.color-chip');
-        chips.forEach(function (c) { c.classList.remove('color-chip-active'); });
-        roleEl.classList.add('color-chip-active');
-        return;
-      }
-
-      // color actualmente seleccionado en la card
-      var activeColorEl = card.querySelector('.color-chip-active');
-      var selectedColor = activeColorEl ? activeColorEl.getAttribute('data-color') : '';
-
-      if (rol === 'detalle') {
-        abrirModalProducto(prod, selectedColor);
-        return;
-      }
-      if (rol === 'add') {
-        var qtyInput = card.querySelector('[data-role="qty"]');
-        var cant = Number(qtyInput && qtyInput.value ? qtyInput.value : 1);
-        if (isNaN(cant) || cant <= 0) cant = 1;
-        agregarAlCarrito(prod, cant, selectedColor);
-        return;
-      }
-      if (!rol) {
-        abrirModalProducto(prod, selectedColor);
-      }
-    });
-
-    // Click en OFERTAS DEL DÍA -> abre el modal del producto
-    if (offersScroll) {
-      offersScroll.addEventListener('click', function (e) {
-        var pill = e.target.closest('.offer-pill');
-        if (!pill) return;
-        var id = pill.getAttribute('data-id');
-        var prod = todosProductos.find(function (p) {
-          return String(p.id) === String(id);
-        });
-        if (!prod) return;
-        abrirModalProducto(prod, '');
-      });
-    }
-
-    function abrirModalProducto(prod, colorPreseleccionado) {
-      modalProductoActual = prod;
-      modalImg.src = prod.imagen_url || '';
-      modalTitle.textContent = prod.nombre || 'Producto';
-      modalCat.textContent = prod.categoria || 'Sin categoría';
-      modalDesc.textContent = prod.descripcion || 'Sin descripción por el momento.';
-
-      var tags = [];
-      if (Array.isArray(prod.tamanos) && prod.tamanos.length) {
-        tags.push('Tamaños: ' + prod.tamanos.join(', '));
-      }
-      modalTags.innerHTML = tags.map(function (t) {
-        return '<span class="tag">' + t + '</span>';
-      }).join('');
-
-      // selector de colores en el modal
-      var colorInicial = colorPreseleccionado || (Array.isArray(prod.colores) && prod.colores[0]) || '';
-      modalColorSeleccionado = colorInicial || '';
-      if (Array.isArray(prod.colores) && prod.colores.length) {
-        modalColors.innerHTML =
-          '<span class="variant-label">Color</span>' +
-          '<div class="color-chip-row">' +
-            prod.colores.map(function (c) {
-              var activeClass = (c === colorInicial) ? ' color-chip-active' : '';
-              return '<button class="color-chip' + activeClass +
-                '" data-color="' + c + '">' + c + '</button>';
-            }).join('') +
-          '</div>';
-      } else {
-        modalColors.innerHTML = '';
-        modalColorSeleccionado = '';
-      }
-
-      var base = Number(prod.precio || 0);
-      var final = calcularPrecioOferta(base, prod.oferta_tipo || '', prod.oferta_valor || 0);
-      var tieneOferta = prod.oferta_tipo && prod.oferta_valor && final < base;
-
-      if (tieneOferta) {
-        modalPrice.innerHTML =
-          '<div class="cat-price-row">' +
-            '<span class="cat-price-main">$ ' + final.toFixed(2) + '</span>' +
-            '<span class="cat-price-old">$ ' + base.toFixed(2) + '</span>' +
-          '</div>';
-        var txt = prod.oferta_etiqueta || 'Oferta disponible';
-        modalOferta.textContent = '🔥 ' + txt;
-      } else {
-        modalPrice.innerHTML =
-          '<div class="cat-price-row"><span class="cat-price-main">$ ' + base.toFixed(2) + '</span></div>';
-        modalOferta.textContent = '';
-      }
-
-      var stock = typeof prod.stock === 'number' ? prod.stock : 0;
-      if (stock <= 0) {
-        modalStockInfo.textContent = 'Sin stock actualmente.';
-      } else if (stock <= 3) {
-        modalStockInfo.textContent = 'Stock limitado: ' + stock + ' unidad(es).';
-      } else {
-        modalStockInfo.textContent = 'Stock disponible: ' + stock + ' unidad(es).';
-      }
-
-      modalQty.value = 1;
-      modalBackdrop.style.display = 'flex';
-    }
-
-    // Click en chips de color dentro del modal
-    modalColors.addEventListener('click', function (e) {
-      var chip = e.target.closest('.color-chip');
-      if (!chip) return;
-      var row = chip.parentElement;
-      if (!row) return;
-      var chips = row.querySelectorAll('.color-chip');
-      chips.forEach(function (c) { c.classList.remove('color-chip-active'); });
-      chip.classList.add('color-chip-active');
-      modalColorSeleccionado = chip.getAttribute('data-color') || '';
-    });
-
-    modalClose.addEventListener('click', function () {
-      modalBackdrop.style.display = 'none';
-      modalProductoActual = null;
-    });
-    modalBackdrop.addEventListener('click', function (e) {
-      if (e.target === modalBackdrop) {
-        modalBackdrop.style.display = 'none';
-        modalProductoActual = null;
-      }
-    });
-
-    // Imagen grande -> abrir en otra pestaña (como página completa)
-    modalImgWrap.addEventListener('click', function () {
-      if (!modalProductoActual || !modalProductoActual.imagen_url) return;
-      window.open(modalProductoActual.imagen_url, '_blank');
-    });
-
-    modalAdd.addEventListener('click', function () {
-      if (!modalProductoActual) return;
-      var cant = Number(modalQty.value || 1);
-      if (isNaN(cant) || cant <= 0) cant = 1;
-      agregarAlCarrito(modalProductoActual, cant, modalColorSeleccionado);
-      modalBackdrop.style.display = 'none';
-      modalProductoActual = null;
-    });
-
+    // ---- REVVENDEDOR BANNER ----
     function cargarRevendedor() {
       if (!revId) return;
       fetch('/api/revendedores')
@@ -1382,17 +1026,14 @@
         .catch(function () {});
     }
 
+    // ---- INIT ----
     (function init() {
       fetch('/api/productos/activos')
         .then(function (resp) { return resp.json(); })
         .then(function (data) {
           todosProductos = Array.isArray(data) ? data : [];
-
-          // asignar categorías automáticas a los que no traen categoría
-          todosProductos.forEach(asignarCategoriaAuto);
-
           renderCategorias();
-          renderOfertasDelDia();
+          renderOfertas();
           renderProductos();
         })
         .catch(function (e) {
