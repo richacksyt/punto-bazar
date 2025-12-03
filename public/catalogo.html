@@ -201,73 +201,20 @@
       border-color: #a855f7;
       background: rgba(76, 29, 149, 0.6);
     }
-    /* Buscador */
-    .search-wrap {
-      margin: 0 0 .6rem;
-    }
-    .search-input {
-      width: 100%;
-      max-width: 320px;
-      border-radius: 999px;
-      border: 1px solid rgba(75, 85, 99, 0.9);
-      background: #020617;
-      color: #e5e7eb;
-      padding: 0.35rem 0.9rem;
-      font-size: 0.85rem;
-      outline: none;
-      box-sizing: border-box;
-    }
-    .search-input::placeholder {
-      color: #6b7280;
-    }
-    .search-input:focus {
-      border-color: #a855f7;
-      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.6);
-    }
-    /* Ofertas del día */
-    .ofertas-wrap {
-      margin: 0 0 .7rem;
-      padding: 0.55rem 0.7rem;
-      border-radius: 0.9rem;
-      border: 1px solid rgba(248, 113, 113, 0.5);
-      background: radial-gradient(circle at top, rgba(127, 29, 29, 0.7), rgba(15, 23, 42, 0.95));
-    }
-    .ofertas-title {
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 0.35rem;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .ofertas-list {
-      display: flex;
-      gap: 0.5rem;
-      overflow-x: auto;
-    }
-    .oferta-card {
-      min-width: 150px;
-      max-width: 190px;
-      background: rgba(15, 23, 42, 0.95);
-      border-radius: 0.7rem;
-      border: 1px solid rgba(248, 250, 252, 0.15);
-      padding: 0.4rem 0.5rem;
+    /* Banner revendedor */
+    .revendedor-banner {
+      display: none;
+      margin-bottom: 0.6rem;
       font-size: 0.78rem;
-      cursor: pointer;
+      padding: 0.35rem 0.6rem;
+      border-radius: 0.7rem;
+      border: 1px solid rgba(52, 211, 153, 0.7);
+      background: rgba(6, 95, 70, 0.35);
+      color: #bbf7d0;
+      display: none;
     }
-    .oferta-nombre {
+    .revendedor-banner strong {
       font-weight: 600;
-      margin-bottom: 0.1rem;
-    }
-    .oferta-texto {
-      color: #fed7aa;
-      font-size: 0.75rem;
-      margin-bottom: 0.1rem;
-    }
-    .oferta-precio {
-      color: #c7d2fe;
-      font-weight: 600;
-      font-size: 0.8rem;
     }
     @media (max-width: 900px) {
       .cat-layout {
@@ -288,22 +235,12 @@
   <div class="cat-layout">
     <main>
       <h1 style="font-size:1.3rem; margin:0 0 .3rem;">Catálogo Punto Bazar</h1>
-      <p style="font-size:0.9rem; color:#9ca3af; margin:0 0 .4rem;">
+      <p style="font-size:0.9rem; color:#9ca3af; margin:0 0 .5rem;">
         Elegí tus productos, armá el pedido y enviá por WhatsApp.
       </p>
 
-      <!-- 🔎 BUSCADOR -->
-      <div class="search-wrap">
-        <input
-          type="text"
-          id="busqueda"
-          class="search-input"
-          placeholder="Buscar por nombre, categoría o descripción..."
-        />
-      </div>
-
-      <!-- 🔥 OFERTAS DEL DÍA -->
-      <div id="ofertas-dia"></div>
+      <!-- Banner de revendedor personalizado -->
+      <div id="revendedor-banner" class="revendedor-banner"></div>
 
       <div class="chip-row" id="chip-categorias"></div>
 
@@ -356,7 +293,6 @@
 
     var todosProductos = [];
     var categoriaFiltro = 'Todos';
-    var terminoBusqueda = '';
     var carrito = cargarCarritoLS();
 
     var grid = document.getElementById('grid-productos');
@@ -366,8 +302,39 @@
     var btnVaciar = document.getElementById('btn-vaciar');
     var btnWspRicardo = document.getElementById('btn-wsp-ricardo');
     var btnWspEliseo = document.getElementById('btn-wsp-eliseo');
-    var inputBusqueda = document.getElementById('busqueda');
-    var ofertasDiaEl = document.getElementById('ofertas-dia');
+    var revendedorBanner = document.getElementById('revendedor-banner');
+
+    // Nuevo: datos del revendedor (si viene por URL)
+    var revendedorActual = null;
+
+    function detectarRevendedorDesdeURL() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var revId = params.get('rev') || params.get('revendedor') || '';
+        if (!revId) return;
+
+        fetch('/api/revendedores')
+          .then(function (resp) { return resp.json(); })
+          .then(function (data) {
+            var lista = Array.isArray(data) ? data : [];
+            revendedorActual = lista.find(function (r) {
+              return String(r.id) === String(revId) && (r.activo !== false);
+            });
+            if (revendedorActual && revendedorBanner) {
+              revendedorBanner.style.display = 'block';
+              var zonaTxt = revendedorActual.zona ? ' · Zona: ' + revendedorActual.zona : '';
+              revendedorBanner.innerHTML =
+                'Estás comprando con <strong>' + (revendedorActual.nombre || 'Revendedor') +
+                '</strong>' + zonaTxt + '. El pedido y el pago se coordinan con Punto Bazar.';
+            }
+          })
+          .catch(function (e) {
+            console.warn('No se pudo cargar revendedor:', e);
+          });
+      } catch (e) {
+        console.warn(e);
+      }
+    }
 
     function renderCategorias() {
       var cats = ['Todos'];
@@ -383,59 +350,15 @@
       }).join('');
     }
 
-    function renderOfertas() {
-      var ofertas = todosProductos.filter(function (p) {
-        return p.oferta_activa;
-      });
-
-      if (!ofertas.length) {
-        ofertasDiaEl.innerHTML = '';
-        return;
-      }
-
-      var html = '<div class="ofertas-wrap">' +
-        '<div class="ofertas-title"><span>🔥 Ofertas del día</span></div>' +
-        '<div class="ofertas-list">';
-
-      ofertas.forEach(function (p) {
-        var urlImg = p.imagen_url || p.imagen || p.imagenUrl || '';
-        html +=
-          '<div class="oferta-card" data-id="' + p.id + '">' +
-            (urlImg
-              ? '<div style="margin-bottom:0.2rem;"><img src="' + urlImg + '" style="width:100%;height:80px;border-radius:0.5rem;object-fit:cover;" onerror="this.style.opacity=0.3;"></div>'
-              : '') +
-            '<div class="oferta-nombre">' + (p.nombre || '') + '</div>' +
-            '<div class="oferta-texto">' + (p.oferta_texto || '') + '</div>' +
-            '<div class="oferta-precio">$ ' + Number(p.precio || 0).toFixed(2) + '</div>' +
-          '</div>';
-      });
-
-      html += '</div></div>';
-      ofertasDiaEl.innerHTML = html;
-    }
-
     function renderProductos() {
-      var texto = (terminoBusqueda || '').trim().toLowerCase();
-
       var lista = todosProductos.filter(function (p) {
-        var okCat = (categoriaFiltro === 'Todos') || (p.categoria === categoriaFiltro);
-        if (!okCat) return false;
-        if (!texto) return true;
-
-        var nombre = (p.nombre || '').toLowerCase();
-        var cat = (p.categoria || '').toLowerCase();
-        var desc = (p.descripcion || '').toLowerCase();
-
-        return (
-          nombre.indexOf(texto) !== -1 ||
-          cat.indexOf(texto) !== -1 ||
-          desc.indexOf(texto) !== -1
-        );
+        if (categoriaFiltro === 'Todos') return true;
+        return p.categoria === categoriaFiltro;
       });
 
       if (!lista.length) {
         grid.innerHTML =
-          '<div style="grid-column:1/-1; text-align:center; color:#9ca3af;">No hay productos que coincidan con la búsqueda.</div>';
+          '<div style="grid-column:1/-1; text-align:center; color:#9ca3af;">No hay productos disponibles en esta categoría.</div>';
         return;
       }
 
@@ -445,29 +368,17 @@
           if (p.stock <= 0) stockText = 'Sin stock';
           else if (p.stock <= 3) stockText = '¡ÚLTIMAS UNIDADES!';
         }
-
-        var urlImg = p.imagen_url || p.imagen || p.imagenUrl || '';
-
-        var ofertaLinea = '';
-        if (p.oferta_activa && p.oferta_texto) {
-          ofertaLinea =
-            '<div style="font-size:0.75rem;color:#fb923c;">🔥 Oferta: ' +
-            p.oferta_texto +
-            '</div>';
-        }
-
         return (
           '<div class="cat-card" data-id="' + p.id + '">' +
             '<div class="cat-img-wrap" data-role="detalle">' +
-              (urlImg
-                ? '<img src="' + urlImg + '" alt="' + (p.nombre || '') + '" onerror="this.style.opacity=0.3;">'
+              (p.imagen_url
+                ? '<img src="' + p.imagen_url + '" alt="' + (p.nombre || '') + '" onerror="this.style.opacity=0.3;">'
                 : '') +
             '</div>' +
             '<div class="cat-body">' +
               '<div class="cat-name" data-role="detalle">' + (p.nombre || '') + '</div>' +
               '<div class="cat-cat">' + (p.categoria || 'Sin categoría') + '</div>' +
               '<div class="cat-price">$ ' + Number(p.precio || 0).toFixed(2) + '</div>' +
-              ofertaLinea +
               '<div class="cat-stock">' + stockText + '</div>' +
               '<div class="cat-actions">' +
                 '<input type="number" min="1" value="1" class="cat-qty" data-role="qty" />' +
@@ -528,7 +439,18 @@
 
     function armarMensajeWhatsApp() {
       if (!carrito.length) return 'Hola, quiero hacer un pedido pero todavía no agregué productos.';
+
       var msg = 'Hola! Te paso mi pedido de Punto Bazar:%0A%0A';
+
+      // NUEVO: info de revendedor
+      if (revendedorActual) {
+        msg += 'Revendedor/a: ' + (revendedorActual.nombre || '');
+        if (revendedorActual.zona) {
+          msg += ' (' + revendedorActual.zona + ')';
+        }
+        msg += '%0A%0A';
+      }
+
       carrito.forEach(function (item) {
         msg += '• ' + item.nombre + ' x' + item.cantidad +
           ' - $' + item.precio.toFixed(2) + ' c/u%0A';
@@ -536,7 +458,10 @@
       var total = carrito.reduce(function (acc, i) {
         return acc + i.cantidad * i.precio;
       }, 0);
-      msg += '%0ATotal estimado: $' + total.toFixed(2);
+      msg += '%0A🔢 Total estimado: $' + total.toFixed(2);
+
+      msg += '%0A%0A💬 Medio de entrega / pago a coordinar.';
+
       return msg;
     }
 
@@ -581,14 +506,6 @@
       }
     });
 
-    ofertasDiaEl.addEventListener('click', function (e) {
-      var card = e.target.closest('.oferta-card');
-      if (!card) return;
-      var id = card.getAttribute('data-id');
-      if (!id) return;
-      window.location.href = 'producto.html?id=' + encodeURIComponent(id);
-    });
-
     cartItemsEl.addEventListener('click', function (e) {
       var btn = e.target.closest('[data-role="remove"]');
       if (!btn) return;
@@ -614,19 +531,13 @@
       window.open('https://wa.me/543814020542?text=' + msg, '_blank');
     });
 
-    // 🔎 Búsqueda
-    inputBusqueda.addEventListener('input', function (e) {
-      terminoBusqueda = e.target.value || '';
-      renderProductos();
-    });
-
     (function init() {
+      detectarRevendedorDesdeURL();
       fetch('/api/productos/activos')
         .then(function (resp) { return resp.json(); })
         .then(function (data) {
           todosProductos = Array.isArray(data) ? data : [];
           renderCategorias();
-          renderOfertas();
           renderProductos();
         })
         .catch(function (e) {
