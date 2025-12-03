@@ -1,7 +1,7 @@
-// index.js - Punto Bazar con IA real, MongoDB y Cloudinary
+// index.js - Punto Bazar PRO
 // Requisitos:
 //   npm install express multer mongoose cloudinary
-//   (opcional) Node 18+ para tener fetch global
+//   (opcional) npm install node-fetch  -> solo si usás Node < 18
 //
 // Variables de entorno necesarias:
 //   MONGO_URI
@@ -12,8 +12,8 @@
 //
 // Para activar IA real:
 //   1) Crear API key en https://platform.openai.com
-//   2) En la consola:  export OPENAI_API_KEY="TU_API_KEY_ACÁ"
-//   3) Ejecutar: node index.js
+//   2) export OPENAI_API_KEY="TU_API_KEY"
+//   3) node index.js
 
 const express = require('express');
 const path = require('path');
@@ -21,14 +21,23 @@ const fs = require('fs');
 const multer = require('multer');
 const mongoose = require('mongoose');
 const cloudinary = require('cloudinary').v2;
-
 const Producto = require('./models/producto');
+
+// ---- fetch compatible (Node 18+ o node-fetch) ----
+let fetchFn = global.fetch;
+if (!fetchFn) {
+  // fallback para Node < 18
+  fetchFn = (...args) =>
+    import('node-fetch').then(({ default: f }) => f(...args));
+}
+const fetch = fetchFn;
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --------- CONEXIÓN A MONGODB ----------
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/puntobazar';
+const MONGO_URI =
+  process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/puntobazar';
 
 mongoose
   .connect(MONGO_URI)
@@ -53,7 +62,7 @@ app.use(express.urlencoded({ extended: true }));
 // Static
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --------- "BASE DE DATOS" EN MEMORIA (TEMPORAL PARA LO DEMÁS) ----------
+// --------- "BASE DE DATOS" EN MEMORIA PARA DEMÁS COSAS ----------
 let usuarios = [
   { id: 1, usuario: 'ricardo', password: '1234', nombre: 'Ricardo' },
   { id: 2, usuario: 'eliseo', password: '1234', nombre: 'Eliseo' }
@@ -72,7 +81,6 @@ let nextIds = {
 };
 
 // --------- SUBIDA DE IMÁGENES (MULTER + CLOUDINARY) ----------
-// Usamos multer para guardar un archivo TEMPORAL y luego subirlo a Cloudinary
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -90,35 +98,36 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Nuevo: subimos a Cloudinary en lugar de usar la imagen local
+// Subir a Cloudinary y borrar archivo temporal
 app.post('/api/upload-imagen', upload.single('imagen'), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ ok: false, mensaje: 'No se recibió archivo.' });
+      return res
+        .status(400)
+        .json({ ok: false, mensaje: 'No se recibió archivo.' });
     }
 
-    const filePath = req.file.path; // ruta temporal en el disco de Render
+    const filePath = req.file.path;
 
-    // Subir a Cloudinary
     const resultado = await cloudinary.uploader.upload(filePath, {
-      folder: 'punto-bazar' // carpeta lógica en tu cuenta Cloudinary
+      folder: 'punto-bazar'
     });
 
-    // Borramos el archivo local (ya no lo necesitamos)
     try {
       fs.unlinkSync(filePath);
     } catch (e) {
       console.warn('No se pudo borrar archivo temporal:', e.message);
     }
 
-    // Devolvemos la URL permanente de Cloudinary
     res.json({
       ok: true,
       url: resultado.secure_url
     });
   } catch (err) {
     console.error('Error subiendo imagen a Cloudinary:', err);
-    res.status(500).json({ ok: false, mensaje: 'Error al subir imagen.' });
+    res
+      .status(500)
+      .json({ ok: false, mensaje: 'Error al subir imagen.' });
   }
 });
 
@@ -129,12 +138,14 @@ app.post('/api/login', (req, res) => {
     (x) => x.usuario === usuario && x.password === password
   );
   if (!u) {
-    return res.status(401).json({ ok: false, mensaje: 'Usuario o clave incorrectos.' });
+    return res
+      .status(401)
+      .json({ ok: false, mensaje: 'Usuario o clave incorrectos.' });
   }
   res.json({ ok: true, nombre: u.nombre || u.usuario });
 });
 
-// --------- REVendedores ----------
+// --------- REVENDEDORES ----------
 app.get('/api/revendedores', (req, res) => {
   res.json(revendedores);
 });
@@ -142,7 +153,9 @@ app.get('/api/revendedores', (req, res) => {
 app.post('/api/revendedores', (req, res) => {
   const { nombre, telefono, zona, acepta_whatsapp } = req.body || {};
   if (!nombre) {
-    return res.status(400).json({ mensaje: 'Nombre es obligatorio.' });
+    return res
+      .status(400)
+      .json({ mensaje: 'Nombre es obligatorio.' });
   }
   const r = {
     id: nextIds.revendedor++,
@@ -159,7 +172,11 @@ app.post('/api/revendedores', (req, res) => {
 app.patch('/api/revendedores/:id/activo', (req, res) => {
   const id = Number(req.params.id);
   const r = revendedores.find((x) => x.id === id);
-  if (!r) return res.status(404).json({ mensaje: 'Revendedor no encontrado.' });
+  if (!r) {
+    return res
+      .status(404)
+      .json({ mensaje: 'Revendedor no encontrado.' });
+  }
   if (typeof req.body.activo === 'boolean') {
     r.activo = req.body.activo;
   } else {
@@ -176,7 +193,9 @@ app.get('/api/campanias', (req, res) => {
 app.post('/api/campanias', (req, res) => {
   const { titulo, texto, activa } = req.body || {};
   if (!titulo && !texto) {
-    return res.status(400).json({ mensaje: 'Se necesita al menos título o texto.' });
+    return res.status(400).json({
+      mensaje: 'Se necesita al menos título o texto.'
+    });
   }
   const c = {
     id: nextIds.campania++,
@@ -195,7 +214,11 @@ app.post('/api/campanias', (req, res) => {
 app.patch('/api/campanias/:id/activa', (req, res) => {
   const id = Number(req.params.id);
   const c = campanias.find((x) => x.id === id);
-  if (!c) return res.status(404).json({ mensaje: 'Campaña no encontrada.' });
+  if (!c) {
+    return res
+      .status(404)
+      .json({ mensaje: 'Campaña no encontrada.' });
+  }
   campanias.forEach((x) => (x.activa = false));
   c.activa = true;
   res.json(c);
@@ -204,41 +227,41 @@ app.patch('/api/campanias/:id/activa', (req, res) => {
 app.delete('/api/campanias/:id', (req, res) => {
   const id = Number(req.params.id);
   const idx = campanias.findIndex((x) => x.id === id);
-  if (idx === -1) return res.status(404).json({ mensaje: 'Campaña no encontrada.' });
+  if (idx === -1) {
+    return res
+      .status(404)
+      .json({ mensaje: 'Campaña no encontrada.' });
+  }
   const [borrada] = campanias.splice(idx, 1);
   res.json(borrada);
 });
 
-// Última campaña activa (para mostrar en portada)
 app.get('/api/campanias/hoy', (req, res) => {
   const activa = campanias
     .filter((x) => x.activa)
-    .sort((a, b) => new Date(b.creada_en) - new Date(a.creada_en))[0];
+    .sort(
+      (a, b) => new Date(b.creada_en) - new Date(a.creada_en)
+    )[0];
   if (!activa) return res.json(null);
   res.json(activa);
 });
 
-// --------- PRODUCTOS / STOCK (MONGO) ----------
-
-// helper: normalizar arrays desde input
+// --------- HELPERS PRODUCTOS ----------
 function normalizarArrayDesdeCampo(valor) {
   if (!valor) return [];
   if (Array.isArray(valor)) return valor;
-  // si viene texto "rojo, azul"
   return String(valor)
     .split(',')
     .map((s) => s.trim())
     .filter((s) => s.length);
 }
 
-// helper: obtener siguiente id numérico de producto
 async function obtenerSiguienteIdProducto() {
   const ultimo = await Producto.findOne().sort({ id: -1 }).lean();
   const ultimoId = ultimo ? ultimo.id || 0 : 0;
   return ultimoId + 1;
 }
 
-// helper: calcular precio con oferta (mismo criterio que el front)
 function calcularPrecioConOferta(precioBase, oferta_tipo, oferta_valor) {
   const base = Number(precioBase || 0);
   const v = Number(oferta_valor || 0);
@@ -254,6 +277,8 @@ function calcularPrecioConOferta(precioBase, oferta_tipo, oferta_valor) {
   return base;
 }
 
+// --------- PRODUCTOS (MONGO) ----------
+
 // Todos los productos
 app.get('/api/productos', async (req, res) => {
   try {
@@ -261,43 +286,46 @@ app.get('/api/productos', async (req, res) => {
     res.json(productos);
   } catch (err) {
     console.error('Error listando productos:', err);
-    res.status(500).json({ mensaje: 'Error al obtener productos.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al obtener productos.' });
   }
 });
 
-// Solo productos activos y con stock > 0 (para catálogo)
+// Solo activos (para catálogo público)
 app.get('/api/productos/activos', async (req, res) => {
   try {
     const activos = await Producto.find({
       activo: true,
-      $or: [
-        { stock: { $gt: 0 } },
-        { stock: { $exists: false } }
-      ]
+      $or: [{ stock: { $gt: 0 } }, { stock: { $exists: false } }]
     })
       .sort({ id: 1 })
       .lean();
 
-    // Los devolvemos tal cual, incluyendo oferta_tipo/oferta_valor/oferta_etiqueta
     res.json(activos);
   } catch (err) {
     console.error('Error listando productos activos:', err);
-    res.status(500).json({ mensaje: 'Error al obtener productos activos.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al obtener productos activos.' });
   }
 });
 
-// (Opcional) Productos con oferta activa (para panel admin/verificación)
+// Productos con oferta (para panel admin)
 app.get('/api/productos/ofertas', async (req, res) => {
   try {
     const conOfertas = await Producto.find({
       oferta_tipo: { $in: ['porcentaje', 'precio'] },
       oferta_valor: { $gt: 0 }
-    }).sort({ id: 1 }).lean();
-
+    })
+      .sort({ id: 1 })
+      .lean();
     res.json(conOfertas);
   } catch (err) {
     console.error('Error listando productos en oferta:', err);
-    res.status(500).json({ mensaje: 'Error al obtener productos en oferta.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al obtener productos en oferta.' });
   }
 });
 
@@ -313,14 +341,15 @@ app.post('/api/productos', async (req, res) => {
       colores,
       tamanos,
       stock,
-      // NUEVO: campos de oferta
       oferta_tipo,
       oferta_valor,
       oferta_etiqueta
     } = req.body || {};
 
     if (!nombre || !precio) {
-      return res.status(400).json({ mensaje: 'Nombre y precio son obligatorios.' });
+      return res.status(400).json({
+        mensaje: 'Nombre y precio son obligatorios.'
+      });
     }
 
     const nuevoId = await obtenerSiguienteIdProducto();
@@ -334,18 +363,23 @@ app.post('/api/productos', async (req, res) => {
       imagen_url: imagen_url || '',
       colores: normalizarArrayDesdeCampo(colores),
       tamanos: normalizarArrayDesdeCampo(tamanos),
-      stock: stock === '' || stock === undefined ? 1 : Number(stock) || 0,
+      stock:
+        stock === '' || stock === undefined ? 1 : Number(stock) || 0,
       activo: true,
-      // Oferta: si no viene nada, quedan null / undefined y no molestan
       oferta_tipo: oferta_tipo || null,
-      oferta_valor: oferta_valor === '' || oferta_valor === undefined ? null : Number(oferta_valor),
+      oferta_valor:
+        oferta_valor === '' || oferta_valor === undefined
+          ? null
+          : Number(oferta_valor),
       oferta_etiqueta: oferta_etiqueta || null
     });
 
     res.json(producto);
   } catch (err) {
     console.error('Error creando producto:', err);
-    res.status(500).json({ mensaje: 'Error al crear producto.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al crear producto.' });
   }
 });
 
@@ -354,8 +388,11 @@ app.patch('/api/productos/:id/activo', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
-
-    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
+    if (!p) {
+      return res
+        .status(404)
+        .json({ mensaje: 'Producto no encontrado.' });
+    }
 
     if (typeof req.body.activo === 'boolean') {
       p.activo = req.body.activo;
@@ -366,21 +403,28 @@ app.patch('/api/productos/:id/activo', async (req, res) => {
     await p.save();
     res.json(p);
   } catch (err) {
-    console.error('Error cambiando estado activo del producto:', err);
-    res.status(500).json({ mensaje: 'Error al actualizar producto.' });
+    console.error(
+      'Error cambiando estado activo del producto:',
+      err
+    );
+    res
+      .status(500)
+      .json({ mensaje: 'Error al actualizar producto.' });
   }
 });
 
-// Editar producto (nombre, precio, stock, etc.)
-// IMPORTANTE: acá SOLO se pisan campos que vengan definidos.
-// Si la pantalla de stock no manda oferta_tipo/oferta_valor/oferta_etiqueta, NO se borran.
+// Editar producto (general)
+// Solo pisa los campos que vengan definidos en el body.
 app.patch('/api/productos/:id', async (req, res) => {
-  try:
-  {
+  try {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
 
-    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
+    if (!p) {
+      return res
+        .status(404)
+        .json({ mensaje: 'Producto no encontrado.' });
+    }
 
     const {
       nombre,
@@ -391,7 +435,6 @@ app.patch('/api/productos/:id', async (req, res) => {
       colores,
       tamanos,
       stock,
-      // Oferta opcional: solo se toca si viene en el body
       oferta_tipo,
       oferta_valor,
       oferta_etiqueta
@@ -402,17 +445,21 @@ app.patch('/api/productos/:id', async (req, res) => {
     if (precio !== undefined) p.precio = Number(precio) || 0;
     if (categoria !== undefined) p.categoria = categoria;
     if (imagen_url !== undefined) p.imagen_url = imagen_url;
-    if (colores !== undefined) p.colores = normalizarArrayDesdeCampo(colores);
-    if (tamanos !== undefined) p.tamanos = normalizarArrayDesdeCampo(tamanos);
+    if (colores !== undefined)
+      p.colores = normalizarArrayDesdeCampo(colores);
+    if (tamanos !== undefined)
+      p.tamanos = normalizarArrayDesdeCampo(tamanos);
     if (stock !== undefined) p.stock = Number(stock) || 0;
 
-    // Solo modificamos oferta si el front la manda explícitamente
+    // Oferta: solo se toca si viene en el body
     if (oferta_tipo !== undefined) {
       p.oferta_tipo = oferta_tipo || null;
     }
     if (oferta_valor !== undefined) {
       p.oferta_valor =
-        oferta_valor === '' || oferta_valor === null || oferta_valor === undefined
+        oferta_valor === '' ||
+        oferta_valor === null ||
+        oferta_valor === undefined
           ? null
           : Number(oferta_valor);
     }
@@ -424,18 +471,23 @@ app.patch('/api/productos/:id', async (req, res) => {
     res.json(p);
   } catch (err) {
     console.error('Error editando producto:', err);
-    res.status(500).json({ mensaje: 'Error al editar producto.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al editar producto.' });
   }
 });
 
-// Modificar stock directo
-// ✅ Esta ruta se usa desde la pantalla de stock: solo cambia stock (y si querés podrías agregar stock_minimo)
-// NO toca ningún campo de oferta.
+// Modificar stock directo (pantalla de stock)
+// ❗ NO toca campos de oferta.
 app.patch('/api/productos/:id/stock', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
-    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
+    if (!p) {
+      return res
+        .status(404)
+        .json({ mensaje: 'Producto no encontrado.' });
+    }
 
     const { stock } = req.body || {};
     p.stock = Number(stock) || 0;
@@ -444,29 +496,38 @@ app.patch('/api/productos/:id/stock', async (req, res) => {
     res.json(p);
   } catch (err) {
     console.error('Error actualizando stock:', err);
-    res.status(500).json({ mensaje: 'Error al actualizar stock.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al actualizar stock.' });
   }
 });
 
-// NUEVO: endpoint específico para oferta de producto
-// Desde tu panel de "Ofertas" usás este endpoint y sabés que SOLO toca oferta, no stock.
+// Endpoint específico de OFERTA
+// Solo toca oferta_tipo / oferta_valor / oferta_etiqueta.
 app.patch('/api/productos/:id/oferta', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
-    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
+    if (!p) {
+      return res
+        .status(404)
+        .json({ mensaje: 'Producto no encontrado.' });
+    }
 
-    let { oferta_tipo, oferta_valor, oferta_etiqueta } = req.body || {};
+    let { oferta_tipo, oferta_valor, oferta_etiqueta } =
+      req.body || {};
 
     oferta_tipo = oferta_tipo || null;
     const valor =
-      oferta_valor === '' || oferta_valor === null || oferta_valor === undefined
+      oferta_valor === '' ||
+      oferta_valor === null ||
+      oferta_valor === undefined
         ? null
         : Number(oferta_valor);
     oferta_etiqueta = oferta_etiqueta || null;
 
-    // Si no hay tipo o valor => limpiamos oferta
     if (!oferta_tipo || !valor) {
+      // Limpiar oferta
       p.oferta_tipo = null;
       p.oferta_valor = null;
       p.oferta_etiqueta = null;
@@ -480,7 +541,9 @@ app.patch('/api/productos/:id/oferta', async (req, res) => {
     res.json(p);
   } catch (err) {
     console.error('Error actualizando oferta de producto:', err);
-    res.status(500).json({ mensaje: 'Error al actualizar oferta.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al actualizar oferta.' });
   }
 });
 
@@ -489,11 +552,17 @@ app.delete('/api/productos/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const borrado = await Producto.findOneAndDelete({ id });
-    if (!borrado) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
+    if (!borrado) {
+      return res
+        .status(404)
+        .json({ mensaje: 'Producto no encontrado.' });
+    }
     res.json(borrado);
   } catch (err) {
     console.error('Error borrando producto:', err);
-    res.status(500).json({ mensaje: 'Error al borrar producto.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al borrar producto.' });
   }
 });
 
@@ -505,7 +574,9 @@ app.get('/api/clientes', (req, res) => {
 app.post('/api/clientes', (req, res) => {
   const { nombre, telefono, zona, notas } = req.body || {};
   if (!nombre) {
-    return res.status(400).json({ mensaje: 'Nombre es obligatorio.' });
+    return res
+      .status(400)
+      .json({ mensaje: 'Nombre es obligatorio.' });
   }
   const c = {
     id: nextIds.cliente++,
@@ -533,22 +604,20 @@ app.post('/api/ventas', async (req, res) => {
       comision_porcentaje,
       cliente_id,
       cliente_texto,
-      // NUEVO: items con varios productos
       items,
-      // Campos viejos (por compatibilidad)
       producto_id,
       cantidad_producto,
       detalle
     } = req.body || {};
 
-    const fechaFinal = fecha || new Date().toISOString().slice(0, 10);
+    const fechaFinal =
+      fecha || new Date().toISOString().slice(0, 10);
 
     // Cliente
     let cliId = cliente_id ? Number(cliente_id) : null;
     let cliNombre = cliente_texto || '';
 
     if (!cliId && cliNombre) {
-      // crear cliente al vuelo
       const nuevo = {
         id: nextIds.cliente++,
         nombre: cliNombre,
@@ -563,25 +632,27 @@ app.post('/api/ventas', async (req, res) => {
       if (cli) cliNombre = cli.nombre;
     }
 
-    // Calcular total
+    // Items
     let totalNum = Number(total) || 0;
-
-    // Si se mandaron varios items y no hay total, lo calculamos desde productos en Mongo
     let itemsLimpios = Array.isArray(items) ? items : [];
     itemsLimpios = itemsLimpios
-      .map(it => ({
+      .map((it) => ({
         producto_id: Number(it.producto_id),
         cantidad: Number(it.cantidad) || 0
       }))
-      .filter(it => it.producto_id && it.cantidad > 0);
+      .filter(
+        (it) => it.producto_id && it.cantidad > 0
+      );
 
+    // Calcular total desde productos si no viene total válido
     if (itemsLimpios.length && (!total || totalNum <= 0)) {
       totalNum = 0;
       for (const it of itemsLimpios) {
         try {
           const p = await Producto.findOne({ id: it.producto_id });
           if (p) {
-            const precioBase = typeof p.precio === 'number' ? p.precio : 0;
+            const precioBase =
+              typeof p.precio === 'number' ? p.precio : 0;
             const precioConOferta = calcularPrecioConOferta(
               precioBase,
               p.oferta_tipo,
@@ -590,17 +661,25 @@ app.post('/api/ventas', async (req, res) => {
             totalNum += precioConOferta * it.cantidad;
           }
         } catch (e) {
-          console.error('Error obteniendo producto para calcular total:', e);
+          console.error(
+            'Error obteniendo producto para calcular total:',
+            e
+          );
         }
       }
-    } else if (!itemsLimpios.length && (!total || totalNum <= 0) && producto_id) {
-      // compatibilidad: 1 solo producto
+    } else if (
+      !itemsLimpios.length &&
+      (!total || totalNum <= 0) &&
+      producto_id
+    ) {
+      // Modo viejo: un solo producto
       const prodId = Number(producto_id);
       const cant = Number(cantidad_producto) || 0;
       try {
         const p = await Producto.findOne({ id: prodId });
         if (p) {
-          const precioBase = typeof p.precio === 'number' ? p.precio : 0;
+          const precioBase =
+            typeof p.precio === 'number' ? p.precio : 0;
           const precioConOferta = calcularPrecioConOferta(
             precioBase,
             p.oferta_tipo,
@@ -609,49 +688,64 @@ app.post('/api/ventas', async (req, res) => {
           totalNum = precioConOferta * cant;
         }
       } catch (e) {
-        console.error('Error obteniendo producto (modo 1 producto):', e);
+        console.error(
+          'Error obteniendo producto (modo 1 producto):',
+          e
+        );
       }
     }
 
     const porc = Number(comision_porcentaje) || 0;
-    const comision_calculada = Math.round((totalNum * porc) / 100);
+    const comision_calculada = Math.round(
+      (totalNum * porc) / 100
+    );
 
     // Descontar stock
     if (itemsLimpios.length) {
-      // Varios productos
       for (const it of itemsLimpios) {
         try {
           const p = await Producto.findOne({ id: it.producto_id });
           if (p) {
-            const stockActual = typeof p.stock === 'number' ? p.stock : 0;
+            const stockActual =
+              typeof p.stock === 'number' ? p.stock : 0;
             p.stock = Math.max(0, stockActual - it.cantidad);
             await p.save();
           }
         } catch (errStock) {
-          console.error('Error actualizando stock desde venta (items):', errStock);
+          console.error(
+            'Error actualizando stock desde venta (items):',
+            errStock
+          );
         }
       }
     } else {
-      // Compatibilidad con viejo formato (un solo producto)
-      let prodId = producto_id ? Number(producto_id) : null;
-      let cantDesc = cantidad_producto ? Number(cantidad_producto) : 0;
+      const prodId = producto_id ? Number(producto_id) : null;
+      const cantDesc = cantidad_producto
+        ? Number(cantidad_producto)
+        : 0;
       if (prodId && cantDesc > 0) {
         try {
           const p = await Producto.findOne({ id: prodId });
           if (p) {
-            const stockActual = typeof p.stock === 'number' ? p.stock : 0;
+            const stockActual =
+              typeof p.stock === 'number' ? p.stock : 0;
             p.stock = Math.max(0, stockActual - cantDesc);
             await p.save();
           }
         } catch (errStock) {
-          console.error('Error actualizando stock desde venta:', errStock);
+          console.error(
+            'Error actualizando stock desde venta:',
+            errStock
+          );
         }
       }
     }
 
     const v = {
       id: nextIds.venta++,
-      revendedor_id: revendedor_id ? Number(revendedor_id) : null,
+      revendedor_id: revendedor_id
+        ? Number(revendedor_id)
+        : null,
       revendedor_nombre: revendedor_nombre || '',
       fecha: fechaFinal,
       total: totalNum,
@@ -660,7 +754,6 @@ app.post('/api/ventas', async (req, res) => {
       cliente_id: cliId,
       cliente: cliNombre,
       detalle: detalle || '',
-      // Guardamos los items si vinieron
       items: itemsLimpios.length ? itemsLimpios : undefined
     };
 
@@ -668,7 +761,9 @@ app.post('/api/ventas', async (req, res) => {
     res.json(v);
   } catch (err) {
     console.error('Error creando venta:', err);
-    res.status(500).json({ mensaje: 'Error al crear venta.' });
+    res
+      .status(500)
+      .json({ mensaje: 'Error al crear venta.' });
   }
 });
 
@@ -677,7 +772,9 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
 async function llamarIA(prompt, maxOutputTokens) {
   if (!OPENAI_API_KEY) {
-    console.warn('⚠️ No hay OPENAI_API_KEY configurada. Usando IA básica de fallback.');
+    console.warn(
+      '⚠️ No hay OPENAI_API_KEY configurada. Usando IA básica de fallback.'
+    );
     return null;
   }
 
@@ -696,7 +793,11 @@ async function llamarIA(prompt, maxOutputTokens) {
     });
 
     if (!resp.ok) {
-      console.error('Error HTTP IA:', resp.status, await resp.text());
+      console.error(
+        'Error HTTP IA:',
+        resp.status,
+        await resp.text()
+      );
       return null;
     }
 
@@ -710,7 +811,8 @@ async function llamarIA(prompt, maxOutputTokens) {
 
 // IA para DESCRIPCIÓN de PRODUCTO
 app.post('/api/ia/descripcion-producto', async (req, res) => {
-  const { nombre, categoria, detalles, colores, tamanos } = req.body || {};
+  const { nombre, categoria, detalles, colores, tamanos } =
+    req.body || {};
 
   const prompt =
     'Sos el redactor de fichas de producto de un catálogo de bazar. ' +
@@ -770,14 +872,21 @@ app.post('/api/ia/campania', async (req, res) => {
   for (const bloque of secciones) {
     const b = bloque.trim();
     if (!b) continue;
-    if (b.toUpperCase().startsWith('TÍTULO') || b.toUpperCase().startsWith('TITULO')) {
-      partes.titulo = b.replace(/^T[ÍI]TULO:\s*/i, '').trim();
+    if (
+      b.toUpperCase().startsWith('TÍTULO') ||
+      b.toUpperCase().startsWith('TITULO')
+    ) {
+      partes.titulo = b
+        .replace(/^T[ÍI]TULO:\s*/i, '')
+        .trim();
     } else if (b.toUpperCase().startsWith('TEXTO')) {
       partes.cuerpo = b.replace(/^TEXTO:\s*/i, '').trim();
     } else if (b.toUpperCase().startsWith('CTA')) {
       partes.cta = b.replace(/^CTA:\s*/i, '').trim();
     } else if (b.toUpperCase().startsWith('HASHTAGS')) {
-      partes.hashtags = b.replace(/^HASHTAGS:\s*/i, '').trim();
+      partes.hashtags = b
+        .replace(/^HASHTAGS:\s*/i, '')
+        .trim();
     }
   }
 
