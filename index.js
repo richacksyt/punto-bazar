@@ -218,7 +218,7 @@ app.get('/api/campanias/hoy', (req, res) => {
   res.json(activa);
 });
 
-// --------- PRODUCTOS / STOCK (AHORA EN MONGO) ----------
+// --------- PRODUCTOS / STOCK (MONGO) ----------
 
 // helper: normalizar arrays desde input
 function normalizarArrayDesdeCampo(valor) {
@@ -236,6 +236,22 @@ async function obtenerSiguienteIdProducto() {
   const ultimo = await Producto.findOne().sort({ id: -1 }).lean();
   const ultimoId = ultimo ? ultimo.id || 0 : 0;
   return ultimoId + 1;
+}
+
+// helper: calcular precio con oferta (mismo criterio que el front)
+function calcularPrecioConOferta(precioBase, oferta_tipo, oferta_valor) {
+  const base = Number(precioBase || 0);
+  const v = Number(oferta_valor || 0);
+  if (!oferta_tipo || !v || base <= 0) return base;
+
+  if (oferta_tipo === 'porcentaje') {
+    const desc = (base * v) / 100;
+    return Math.max(0, base - desc);
+  }
+  if (oferta_tipo === 'precio') {
+    return Math.max(0, v);
+  }
+  return base;
 }
 
 // Todos los productos
@@ -262,10 +278,26 @@ app.get('/api/productos/activos', async (req, res) => {
       .sort({ id: 1 })
       .lean();
 
+    // Los devolvemos tal cual, incluyendo oferta_tipo/oferta_valor/oferta_etiqueta
     res.json(activos);
   } catch (err) {
     console.error('Error listando productos activos:', err);
     res.status(500).json({ mensaje: 'Error al obtener productos activos.' });
+  }
+});
+
+// (Opcional) Productos con oferta activa (para panel admin/verificación)
+app.get('/api/productos/ofertas', async (req, res) => {
+  try {
+    const conOfertas = await Producto.find({
+      oferta_tipo: { $in: ['porcentaje', 'precio'] },
+      oferta_valor: { $gt: 0 }
+    }).sort({ id: 1 }).lean();
+
+    res.json(conOfertas);
+  } catch (err) {
+    console.error('Error listando productos en oferta:', err);
+    res.status(500).json({ mensaje: 'Error al obtener productos en oferta.' });
   }
 });
 
@@ -280,7 +312,11 @@ app.post('/api/productos', async (req, res) => {
       imagen_url,
       colores,
       tamanos,
-      stock
+      stock,
+      // NUEVO: campos de oferta
+      oferta_tipo,
+      oferta_valor,
+      oferta_etiqueta
     } = req.body || {};
 
     if (!nombre || !precio) {
@@ -299,7 +335,11 @@ app.post('/api/productos', async (req, res) => {
       colores: normalizarArrayDesdeCampo(colores),
       tamanos: normalizarArrayDesdeCampo(tamanos),
       stock: stock === '' || stock === undefined ? 1 : Number(stock) || 0,
-      activo: true
+      activo: true,
+      // Oferta: si no viene nada, quedan null / undefined y no molestan
+      oferta_tipo: oferta_tipo || null,
+      oferta_valor: oferta_valor === '' || oferta_valor === undefined ? null : Number(oferta_valor),
+      oferta_etiqueta: oferta_etiqueta || null
     });
 
     res.json(producto);
@@ -332,8 +372,11 @@ app.patch('/api/productos/:id/activo', async (req, res) => {
 });
 
 // Editar producto (nombre, precio, stock, etc.)
+// IMPORTANTE: acá SOLO se pisan campos que vengan definidos.
+// Si la pantalla de stock no manda oferta_tipo/oferta_valor/oferta_etiqueta, NO se borran.
 app.patch('/api/productos/:id', async (req, res) => {
-  try {
+  try:
+  {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
 
@@ -347,7 +390,11 @@ app.patch('/api/productos/:id', async (req, res) => {
       imagen_url,
       colores,
       tamanos,
-      stock
+      stock,
+      // Oferta opcional: solo se toca si viene en el body
+      oferta_tipo,
+      oferta_valor,
+      oferta_etiqueta
     } = req.body || {};
 
     if (nombre !== undefined) p.nombre = nombre;
@@ -359,6 +406,20 @@ app.patch('/api/productos/:id', async (req, res) => {
     if (tamanos !== undefined) p.tamanos = normalizarArrayDesdeCampo(tamanos);
     if (stock !== undefined) p.stock = Number(stock) || 0;
 
+    // Solo modificamos oferta si el front la manda explícitamente
+    if (oferta_tipo !== undefined) {
+      p.oferta_tipo = oferta_tipo || null;
+    }
+    if (oferta_valor !== undefined) {
+      p.oferta_valor =
+        oferta_valor === '' || oferta_valor === null || oferta_valor === undefined
+          ? null
+          : Number(oferta_valor);
+    }
+    if (oferta_etiqueta !== undefined) {
+      p.oferta_etiqueta = oferta_etiqueta || null;
+    }
+
     await p.save();
     res.json(p);
   } catch (err) {
@@ -368,6 +429,8 @@ app.patch('/api/productos/:id', async (req, res) => {
 });
 
 // Modificar stock directo
+// ✅ Esta ruta se usa desde la pantalla de stock: solo cambia stock (y si querés podrías agregar stock_minimo)
+// NO toca ningún campo de oferta.
 app.patch('/api/productos/:id/stock', async (req, res) => {
   try {
     const id = Number(req.params.id);
@@ -382,6 +445,42 @@ app.patch('/api/productos/:id/stock', async (req, res) => {
   } catch (err) {
     console.error('Error actualizando stock:', err);
     res.status(500).json({ mensaje: 'Error al actualizar stock.' });
+  }
+});
+
+// NUEVO: endpoint específico para oferta de producto
+// Desde tu panel de "Ofertas" usás este endpoint y sabés que SOLO toca oferta, no stock.
+app.patch('/api/productos/:id/oferta', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const p = await Producto.findOne({ id });
+    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
+
+    let { oferta_tipo, oferta_valor, oferta_etiqueta } = req.body || {};
+
+    oferta_tipo = oferta_tipo || null;
+    const valor =
+      oferta_valor === '' || oferta_valor === null || oferta_valor === undefined
+        ? null
+        : Number(oferta_valor);
+    oferta_etiqueta = oferta_etiqueta || null;
+
+    // Si no hay tipo o valor => limpiamos oferta
+    if (!oferta_tipo || !valor) {
+      p.oferta_tipo = null;
+      p.oferta_valor = null;
+      p.oferta_etiqueta = null;
+    } else {
+      p.oferta_tipo = oferta_tipo;
+      p.oferta_valor = valor;
+      p.oferta_etiqueta = oferta_etiqueta;
+    }
+
+    await p.save();
+    res.json(p);
+  } catch (err) {
+    console.error('Error actualizando oferta de producto:', err);
+    res.status(500).json({ mensaje: 'Error al actualizar oferta.' });
   }
 });
 
@@ -482,12 +581,35 @@ app.post('/api/ventas', async (req, res) => {
         try {
           const p = await Producto.findOne({ id: it.producto_id });
           if (p) {
-            const precio = typeof p.precio === 'number' ? p.precio : 0;
-            totalNum += precio * it.cantidad;
+            const precioBase = typeof p.precio === 'number' ? p.precio : 0;
+            const precioConOferta = calcularPrecioConOferta(
+              precioBase,
+              p.oferta_tipo,
+              p.oferta_valor
+            );
+            totalNum += precioConOferta * it.cantidad;
           }
         } catch (e) {
           console.error('Error obteniendo producto para calcular total:', e);
         }
+      }
+    } else if (!itemsLimpios.length && (!total || totalNum <= 0) && producto_id) {
+      // compatibilidad: 1 solo producto
+      const prodId = Number(producto_id);
+      const cant = Number(cantidad_producto) || 0;
+      try {
+        const p = await Producto.findOne({ id: prodId });
+        if (p) {
+          const precioBase = typeof p.precio === 'number' ? p.precio : 0;
+          const precioConOferta = calcularPrecioConOferta(
+            precioBase,
+            p.oferta_tipo,
+            p.oferta_valor
+          );
+          totalNum = precioConOferta * cant;
+        }
+      } catch (e) {
+        console.error('Error obteniendo producto (modo 1 producto):', e);
       }
     }
 
