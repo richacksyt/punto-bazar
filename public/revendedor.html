@@ -102,10 +102,6 @@
       color: var(--muted);
       font-size: 0.8rem;
     }
-    .fila-valor {
-      margin-top: 0.15rem;
-      word-break: break-all;
-    }
     .link-box {
       display: flex;
       flex-wrap: wrap;
@@ -176,6 +172,9 @@
       margin-top: 0.5rem;
       min-height: 1rem;
     }
+    .status-ok {
+      color: #4ade80;
+    }
     .status-error {
       color: #f97373;
     }
@@ -214,7 +213,8 @@
       <div class="card">
         <h2 style="margin-top:0;font-size:1rem;">Tu link de catálogo</h2>
         <p style="font-size:.82rem;color:#9ca3af;margin:0 0 .4rem;">
-          Este es el link que tenés que compartir con tus clientes. Todo lo que compren por acá se registra como <strong>tus ventas</strong>.
+          Este es el link que tenés que compartir con tus clientes. Todo lo que compren por acá se registra como
+          <strong>tus ventas</strong>.
         </p>
 
         <div class="fila">
@@ -266,11 +266,19 @@
       return id ? Number(id) : null;
     }
 
-    function renderRevendedor() {
+    function renderRevendedor(id) {
       if (!revendedorActual) {
-        revInfoEl.innerHTML = '<div style="color:#f97373;">No se encontró el revendedor.</div>';
-        revStatusEl.textContent = 'Revisá que el link tenga el parámetro ?id= correcto.';
-        revStatusEl.classList.add('status-error');
+        // Modo genérico: igual mostramos algo aprovechable
+        revInfoEl.innerHTML = `
+          <div class="rev-nombre">Revendedor #${id}</div>
+          <div class="rev-zona">Aún no estás registrado en el sistema de Punto Bazar.</div>
+          <div class="rev-extra">
+            <div>Pedile a Ricardo o Eliseo que te carguen en la sección <strong>Revendedores</strong> del panel admin.</div>
+          </div>
+          <span class="badge-inactivo">Estado: sin registrar</span>
+        `;
+        revStatusEl.textContent = '';
+        revStatusEl.className = 'status';
         return;
       }
 
@@ -291,12 +299,14 @@
           <div><strong>WhatsApp:</strong> ${aceptaWsp}</div>
         </div>
       `;
+      revStatusEl.textContent = '';
+      revStatusEl.className = 'status';
     }
 
-    function setCatalogLink(baseLink) {
-      linkCatalogo = baseLink;
+    function setCatalogLink(id) {
+      linkCatalogo = window.location.origin + '/catalogo.html?rev=' + encodeURIComponent(id);
       linkCatalogoEl.value = linkCatalogo;
-      // Generar QR
+
       const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' +
         encodeURIComponent(linkCatalogo);
       qrImg.src = qrUrl;
@@ -309,17 +319,16 @@
         navigator.clipboard.writeText(linkCatalogo)
           .then(() => {
             revStatusEl.textContent = 'Link copiado. Pegalo en tus chats o estados.';
-            revStatusEl.classList.remove('status-error');
+            revStatusEl.className = 'status status-ok';
           })
           .catch(() => {
             revStatusEl.textContent = 'No se pudo copiar automáticamente. Copialo a mano.';
-            revStatusEl.classList.add('status-error');
+            revStatusEl.className = 'status status-error';
           });
       } else {
-        // Fallback básico
         linkCatalogoEl.select();
         revStatusEl.textContent = 'Seleccioné el texto, ahora copiá con Ctrl+C.';
-        revStatusEl.classList.remove('status-error');
+        revStatusEl.className = 'status status-ok';
       }
     });
 
@@ -331,29 +340,31 @@
     (function init() {
       const id = getRevIdFromURL();
       if (!id) {
-        revInfoEl.innerHTML = '<div style="color:#f97373;">Link incorrecto. Falta el parámetro ?id= en la URL.</div>';
-        revStatusEl.textContent = 'Pedile a Punto Bazar que te pase tu link correcto.';
-        revStatusEl.classList.add('status-error');
+        revInfoEl.innerHTML = `
+          <div class="rev-nombre">Panel del revendedor</div>
+          <div class="rev-zona">Este link está incompleto.</div>
+          <div class="rev-extra">
+            <div>Pedile a Punto Bazar que te envíe tu panel con el formato:</div>
+            <div><code>.../revendedor.html?id=TU_NUMERO</code></div>
+          </div>
+        `;
+        revStatusEl.textContent = '';
         return;
       }
 
-      // Cargar todos los revendedores y buscar el que coincide con el id
+      setCatalogLink(id);
+
+      // Intentamos cargar datos desde el backend (si está registrado)
       fetch('/api/revendedores')
         .then(r => r.json())
         .then(data => {
           const lista = Array.isArray(data) ? data : [];
-          revendedorActual = lista.find(r => Number(r.id) === Number(id));
-          renderRevendedor();
-
-          const base = window.location.origin;
-          const link = base + '/catalogo.html?rev=' + encodeURIComponent(id);
-          setCatalogLink(link);
+          revendedorActual = lista.find(r => Number(r.id) === Number(id)) || null;
+          renderRevendedor(id);
         })
-        .catch(err => {
-          console.error(err);
-          revInfoEl.innerHTML = '<div style="color:#f97373;">Error cargando datos del revendedor.</div>';
-          revStatusEl.textContent = 'Probá de nuevo en unos minutos.';
-          revStatusEl.classList.add('status-error');
+        .catch(() => {
+          revendedorActual = null;
+          renderRevendedor(id);
         });
     })();
   </script>

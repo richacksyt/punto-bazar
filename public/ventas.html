@@ -18,7 +18,7 @@
       margin: 0;
       padding: 1rem;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #020617 0, #000 75%);
+      background: transparent;
       color: var(--texto);
     }
     h1 {
@@ -144,6 +144,16 @@
       font-weight: 600;
       margin-top: 0;
     }
+    .mini-resumen {
+      margin-top: 0.8rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid rgba(30, 64, 175, 0.6);
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+    .mini-resumen div {
+      margin-bottom: 0.2rem;
+    }
     @media (max-width: 900px) {
       .layout {
         grid-template-columns: minmax(0, 1fr);
@@ -198,6 +208,10 @@
         <div><strong>Total por productos:</strong> $ <span id="total-productos">0.00</span></div>
         <div><strong>Comisión estimada:</strong> $ <span id="total-comision">0.00</span></div>
       </div>
+
+      <div class="mini-resumen" id="mini-resumen">
+        <!-- se llena con /api/ventas -->
+      </div>
     </section>
 
     <!-- PRODUCTOS DE LA VENTA -->
@@ -243,7 +257,7 @@
       </div>
 
       <p style="font-size:.78rem;color:#9ca3af;margin-top:.5rem;">
-        Tip: podés armar la venta solo con productos, y el total se calcula solo, o cargar un total manual arriba si querés redondear.
+        Tip: podés armar la venta solo con productos y el total se calcula solo, o cargar un total manual arriba si querés redondear.
       </p>
     </section>
   </div>
@@ -258,6 +272,7 @@
     const ventaStatus = document.getElementById('venta-status');
     const totalProductosEl = document.getElementById('total-productos');
     const totalComisionEl = document.getElementById('total-comision');
+    const miniResumenEl = document.getElementById('mini-resumen');
 
     const selItemProducto = document.getElementById('item-producto');
     const inpItemCantidad = document.getElementById('item-cantidad');
@@ -317,6 +332,48 @@
         });
     }
 
+    function cargarMiniResumen() {
+      fetch('/api/ventas')
+        .then(r => r.json())
+        .then(data => {
+          const lista = Array.isArray(data) ? data : [];
+          if (!lista.length) {
+            miniResumenEl.innerHTML = '<div>No hay ventas registradas todavía.</div>';
+            return;
+          }
+
+          let totalGlobal = 0;
+          const porRev = {};
+          lista.forEach(v => {
+            const t = Number(v.total || 0);
+            totalGlobal += t;
+            const key = v.revendedor_nombre || ('Rev ' + (v.revendedor_id || '?'));
+            porRev[key] = (porRev[key] || 0) + t;
+          });
+
+          let mejorNombre = '';
+          let mejorTotal = 0;
+          Object.keys(porRev).forEach(nombre => {
+            if (porRev[nombre] > mejorTotal) {
+              mejorTotal = porRev[nombre];
+              mejorNombre = nombre;
+            }
+          });
+
+          miniResumenEl.innerHTML = `
+            <div><strong>Ventas registradas:</strong> ${lista.length}</div>
+            <div><strong>Total histórico:</strong> $ ${formatearPrecio(totalGlobal)}</div>
+            ${mejorNombre
+              ? `<div><strong>Top revendedor:</strong> ${mejorNombre} ($${formatearPrecio(mejorTotal)})</div>`
+              : ''
+            }
+          `;
+        })
+        .catch(() => {
+          miniResumenEl.innerHTML = '<div style="color:#f97373;">Error al cargar resumen de ventas.</div>';
+        });
+    }
+
     function renderItems() {
       if (!ventaItems.length) {
         itemsBody.innerHTML =
@@ -369,7 +426,6 @@
         setStatus('Producto no encontrado.', false);
         return;
       }
-      // Si ya existe en la lista, sumamos cantidad
       const existente = ventaItems.find(it => it.producto_id === prodId);
       if (existente) {
         existente.cantidad += cant;
@@ -413,57 +469,71 @@
         return;
       }
 
-      // Si no hay total manual, calculamos desde productos
       if (totalNum <= 0 && ventaItems.length) {
         totalNum = ventaItems.reduce((acc, it) => acc + it.cantidad * it.precio, 0);
       }
 
       const detalleExtra = inpDetalle.value.trim();
-      let detalleTexto = '';
+
+      const pedidos = [];
+
+      // Si hay items, mandamos UNA venta por producto
       if (ventaItems.length) {
-        detalleTexto += 'Detalle de productos:\n';
-        ventaItems.forEach(it => {
-          detalleTexto += `- ${it.nombre} x${it.cantidad} ($${formatearPrecio(it.precio)} c/u)\n`;
+        ventaItems.forEach((it, idx) => {
+          const sub = it.cantidad * it.precio;
+          const detTexto =
+            `Venta multi-producto (item ${idx + 1}/${ventaItems.length}): ${it.nombre} x${it.cantidad}.` +
+            (detalleExtra ? '\n\nNotas:\n' + detalleExtra : '');
+
+          pedidos.push({
+            revendedor_id: revId,
+            revendedor_nombre: revNombre,
+            fecha,
+            total: sub,
+            comision_porcentaje: comisionPorc,
+            cliente_id: null,
+            cliente_texto: clienteTexto,
+            producto_id: it.producto_id,
+            cantidad_producto: it.cantidad,
+            detalle: detTexto
+          });
+        });
+      } else {
+        // Sin items, solo total manual (sin actualizar stock)
+        const detTexto = detalleExtra || 'Venta registrada sin detalle de productos.';
+        pedidos.push({
+          revendedor_id: revId,
+          revendedor_nombre: revNombre,
+          fecha,
+          total: totalNum,
+          comision_porcentaje: comisionPorc,
+          cliente_id: null,
+          cliente_texto: clienteTexto,
+          producto_id: null,
+          cantidad_producto: 0,
+          detalle: detTexto
         });
       }
-      if (detalleExtra) {
-        detalleTexto += '\nNotas:\n' + detalleExtra;
-      }
-
-      // armamos items solo con id y cantidad para el backend
-      const itemsPayload = ventaItems.map(it => ({
-        producto_id: it.producto_id,
-        cantidad: it.cantidad
-      }));
-
-      const body = {
-        revendedor_id: revId,
-        revendedor_nombre: revNombre,
-        fecha,
-        total: totalNum,
-        comision_porcentaje: comisionPorc,
-        cliente_id: null,
-        cliente_texto: clienteTexto,
-        detalle: detalleTexto,
-        items: itemsPayload
-      };
 
       setStatus('Guardando venta...', true);
 
-      fetch('/api/ventas', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      })
-        .then(r => r.json())
-        .then(data => {
+      Promise.all(
+        pedidos.map(body =>
+          fetch('/api/ventas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          }).then(r => r.json())
+        )
+      )
+        .then(() => {
           setStatus('Venta guardada correctamente.', true);
-          // Limpiamos solo la parte de items y totales, dejamos revendedor/fecha para cargar varias seguidas
           ventaItems = [];
           renderItems();
           inpTotalManual.value = '';
           inpDetalle.value = '';
           inpCliente.value = '';
+          cargarMiniResumen();
         })
         .catch(() => {
           setStatus('Error al guardar la venta.', false);
@@ -474,6 +544,7 @@
       initFechaHoy();
       cargarRevendedores();
       cargarProductos();
+      cargarMiniResumen();
       renderItems();
     })();
   </script>
