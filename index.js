@@ -3,18 +3,12 @@
 //   npm install express multer mongoose cloudinary
 //   (opcional) Node 18+ para tener fetch global
 //
-// Variables de entorno necesarias EN PRODUCCIÓN (Render):
+// Variables de entorno necesarias:
 //   MONGO_URI
-//
-// Para Cloudinary podés usar:
-//   OPCIÓN A: una sola variable
-//     CLOUDINARY_URL=cloudinary://API_KEY:API_SECRET@CLOUD_NAME
-//   OPCIÓN B: tres variables separadas
-//     CLOUDINARY_CLOUD_NAME
-//     CLOUDINARY_API_KEY
-//     CLOUDINARY_API_SECRET
-//
-// (opcional) OPENAI_API_KEY para la IA real
+//   CLOUDINARY_CLOUD_NAME
+//   CLOUDINARY_API_KEY
+//   CLOUDINARY_API_SECRET
+//   (opcional) OPENAI_API_KEY
 //
 // Para activar IA real:
 //   1) Crear API key en https://platform.openai.com
@@ -34,8 +28,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --------- CONEXIÓN A MONGODB ----------
-const MONGO_URI =
-  process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/puntobazar';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/puntobazar';
 
 mongoose
   .connect(MONGO_URI)
@@ -47,34 +40,11 @@ mongoose
   });
 
 // --------- CONFIG CLOUDINARY ----------
-// Soportamos:
-//  - CLOUDINARY_CLOUD_NAME + CLOUDINARY_API_KEY + CLOUDINARY_API_SECRET
-//  - o bien CLOUDINARY_URL
-(() => {
-  const hasSeparateCreds =
-    process.env.CLOUDINARY_CLOUD_NAME &&
-    process.env.CLOUDINARY_API_KEY &&
-    process.env.CLOUDINARY_API_SECRET;
-
-  if (hasSeparateCreds) {
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET
-    });
-    console.log(
-      '✅ Cloudinary configurado con CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET'
-    );
-  } else if (process.env.CLOUDINARY_URL) {
-    // Si existe CLOUDINARY_URL, la SDK la usa automáticamente
-    cloudinary.config();
-    console.log('✅ Cloudinary configurado con CLOUDINARY_URL');
-  } else {
-    console.warn(
-      '⚠️ Cloudinary NO configurado. Falta CLOUDINARY_URL o las 3 variables CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET.'
-    );
-  }
-})();
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
+  api_key: process.env.CLOUDINARY_API_KEY || '',
+  api_secret: process.env.CLOUDINARY_API_SECRET || ''
+});
 
 // --------- MIDDLEWARES BÁSICOS ----------
 app.use(express.json());
@@ -123,19 +93,8 @@ const upload = multer({ storage });
 // Nuevo: subimos a Cloudinary en lugar de usar la imagen local
 app.post('/api/upload-imagen', upload.single('imagen'), async (req, res) => {
   try {
-    const cloudConfig = cloudinary.config(); // lee la config actual
-    if (!cloudConfig.cloud_name) {
-      return res.status(500).json({
-        ok: false,
-        mensaje:
-          'Cloudinary no está configurado en el servidor. Revisá las variables de entorno.'
-      });
-    }
-
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ ok: false, mensaje: 'No se recibió archivo.' });
+      return res.status(400).json({ ok: false, mensaje: 'No se recibió archivo.' });
     }
 
     const filePath = req.file.path; // ruta temporal en el disco de Render
@@ -159,9 +118,7 @@ app.post('/api/upload-imagen', upload.single('imagen'), async (req, res) => {
     });
   } catch (err) {
     console.error('Error subiendo imagen a Cloudinary:', err);
-    res
-      .status(500)
-      .json({ ok: false, mensaje: 'Error al subir imagen.' });
+    res.status(500).json({ ok: false, mensaje: 'Error al subir imagen.' });
   }
 });
 
@@ -172,9 +129,7 @@ app.post('/api/login', (req, res) => {
     (x) => x.usuario === usuario && x.password === password
   );
   if (!u) {
-    return res
-      .status(401)
-      .json({ ok: false, mensaje: 'Usuario o clave incorrectos.' });
+    return res.status(401).json({ ok: false, mensaje: 'Usuario o clave incorrectos.' });
   }
   res.json({ ok: true, nombre: u.nombre || u.usuario });
 });
@@ -187,9 +142,7 @@ app.get('/api/revendedores', (req, res) => {
 app.post('/api/revendedores', (req, res) => {
   const { nombre, telefono, zona, acepta_whatsapp } = req.body || {};
   if (!nombre) {
-    return res
-      .status(400)
-      .json({ mensaje: 'Nombre es obligatorio.' });
+    return res.status(400).json({ mensaje: 'Nombre es obligatorio.' });
   }
   const r = {
     id: nextIds.revendedor++,
@@ -206,8 +159,7 @@ app.post('/api/revendedores', (req, res) => {
 app.patch('/api/revendedores/:id/activo', (req, res) => {
   const id = Number(req.params.id);
   const r = revendedores.find((x) => x.id === id);
-  if (!r)
-    return res.status(404).json({ mensaje: 'Revendedor no encontrado.' });
+  if (!r) return res.status(404).json({ mensaje: 'Revendedor no encontrado.' });
   if (typeof req.body.activo === 'boolean') {
     r.activo = req.body.activo;
   } else {
@@ -224,9 +176,7 @@ app.get('/api/campanias', (req, res) => {
 app.post('/api/campanias', (req, res) => {
   const { titulo, texto, activa } = req.body || {};
   if (!titulo && !texto) {
-    return res
-      .status(400)
-      .json({ mensaje: 'Se necesita al menos título o texto.' });
+    return res.status(400).json({ mensaje: 'Se necesita al menos título o texto.' });
   }
   const c = {
     id: nextIds.campania++,
@@ -245,8 +195,7 @@ app.post('/api/campanias', (req, res) => {
 app.patch('/api/campanias/:id/activa', (req, res) => {
   const id = Number(req.params.id);
   const c = campanias.find((x) => x.id === id);
-  if (!c)
-    return res.status(404).json({ mensaje: 'Campaña no encontrada.' });
+  if (!c) return res.status(404).json({ mensaje: 'Campaña no encontrada.' });
   campanias.forEach((x) => (x.activa = false));
   c.activa = true;
   res.json(c);
@@ -255,8 +204,7 @@ app.patch('/api/campanias/:id/activa', (req, res) => {
 app.delete('/api/campanias/:id', (req, res) => {
   const id = Number(req.params.id);
   const idx = campanias.findIndex((x) => x.id === id);
-  if (idx === -1)
-    return res.status(404).json({ mensaje: 'Campaña no encontrada.' });
+  if (idx === -1) return res.status(404).json({ mensaje: 'Campaña no encontrada.' });
   const [borrada] = campanias.splice(idx, 1);
   res.json(borrada);
 });
@@ -294,7 +242,6 @@ async function obtenerSiguienteIdProducto() {
 app.get('/api/productos', async (req, res) => {
   try {
     const productos = await Producto.find().sort({ id: 1 }).lean();
-    // bug corregido: antes hacía res.json(products)
     res.json(productos);
   } catch (err) {
     console.error('Error listando productos:', err);
@@ -307,7 +254,10 @@ app.get('/api/productos/activos', async (req, res) => {
   try {
     const activos = await Producto.find({
       activo: true,
-      $or: [{ stock: { $gt: 0 } }, { stock: { $exists: false } }]
+      $or: [
+        { stock: { $gt: 0 } },
+        { stock: { $exists: false } }
+      ]
     })
       .sort({ id: 1 })
       .lean();
@@ -315,9 +265,7 @@ app.get('/api/productos/activos', async (req, res) => {
     res.json(activos);
   } catch (err) {
     console.error('Error listando productos activos:', err);
-    res
-      .status(500)
-      .json({ mensaje: 'Error al obtener productos activos.' });
+    res.status(500).json({ mensaje: 'Error al obtener productos activos.' });
   }
 });
 
@@ -332,13 +280,14 @@ app.post('/api/productos', async (req, res) => {
       imagen_url,
       colores,
       tamanos,
-      stock
+      stock,
+      // oferta
+      oferta_activa,
+      oferta_texto
     } = req.body || {};
 
     if (!nombre || !precio) {
-      return res
-        .status(400)
-        .json({ mensaje: 'Nombre y precio son obligatorios.' });
+      return res.status(400).json({ mensaje: 'Nombre y precio son obligatorios.' });
     }
 
     const nuevoId = await obtenerSiguienteIdProducto();
@@ -352,9 +301,10 @@ app.post('/api/productos', async (req, res) => {
       imagen_url: imagen_url || '',
       colores: normalizarArrayDesdeCampo(colores),
       tamanos: normalizarArrayDesdeCampo(tamanos),
-      stock:
-        stock === '' || stock === undefined ? 1 : Number(stock) || 0,
-      activo: true
+      stock: stock === '' || stock === undefined ? 1 : Number(stock) || 0,
+      activo: true,
+      oferta_activa: !!oferta_activa,
+      oferta_texto: oferta_texto || ''
     });
 
     res.json(producto);
@@ -370,10 +320,7 @@ app.patch('/api/productos/:id/activo', async (req, res) => {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
 
-    if (!p)
-      return res
-        .status(404)
-        .json({ mensaje: 'Producto no encontrado.' });
+    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
 
     if (typeof req.body.activo === 'boolean') {
       p.activo = req.body.activo;
@@ -384,26 +331,18 @@ app.patch('/api/productos/:id/activo', async (req, res) => {
     await p.save();
     res.json(p);
   } catch (err) {
-    console.error(
-      'Error cambiando estado activo del producto:',
-      err
-    );
-    res
-      .status(500)
-      .json({ mensaje: 'Error al actualizar producto.' });
+    console.error('Error cambiando estado activo del producto:', err);
+    res.status(500).json({ mensaje: 'Error al actualizar producto.' });
   }
 });
 
-// Editar producto (nombre, precio, stock, etc.)
+// Editar producto (nombre, precio, stock, oferta, etc.)
 app.patch('/api/productos/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
 
-    if (!p)
-      return res
-        .status(404)
-        .json({ mensaje: 'Producto no encontrado.' });
+    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
 
     const {
       nombre,
@@ -413,7 +352,9 @@ app.patch('/api/productos/:id', async (req, res) => {
       imagen_url,
       colores,
       tamanos,
-      stock
+      stock,
+      oferta_activa,
+      oferta_texto
     } = req.body || {};
 
     if (nombre !== undefined) p.nombre = nombre;
@@ -421,11 +362,12 @@ app.patch('/api/productos/:id', async (req, res) => {
     if (precio !== undefined) p.precio = Number(precio) || 0;
     if (categoria !== undefined) p.categoria = categoria;
     if (imagen_url !== undefined) p.imagen_url = imagen_url;
-    if (colores !== undefined)
-      p.colores = normalizarArrayDesdeCampo(colores);
-    if (tamanos !== undefined)
-      p.tamanos = normalizarArrayDesdeCampo(tamanos);
+    if (colores !== undefined) p.colores = normalizarArrayDesdeCampo(colores);
+    if (tamanos !== undefined) p.tamanos = normalizarArrayDesdeCampo(tamanos);
     if (stock !== undefined) p.stock = Number(stock) || 0;
+
+    if (oferta_activa !== undefined) p.oferta_activa = !!oferta_activa;
+    if (oferta_texto !== undefined) p.oferta_texto = oferta_texto;
 
     await p.save();
     res.json(p);
@@ -440,10 +382,7 @@ app.patch('/api/productos/:id/stock', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const p = await Producto.findOne({ id });
-    if (!p)
-      return res
-        .status(404)
-        .json({ mensaje: 'Producto no encontrado.' });
+    if (!p) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
 
     const { stock } = req.body || {};
     p.stock = Number(stock) || 0;
@@ -452,9 +391,7 @@ app.patch('/api/productos/:id/stock', async (req, res) => {
     res.json(p);
   } catch (err) {
     console.error('Error actualizando stock:', err);
-    res
-      .status(500)
-      .json({ mensaje: 'Error al actualizar stock.' });
+    res.status(500).json({ mensaje: 'Error al actualizar stock.' });
   }
 });
 
@@ -463,10 +400,7 @@ app.delete('/api/productos/:id', async (req, res) => {
   try {
     const id = Number(req.params.id);
     const borrado = await Producto.findOneAndDelete({ id });
-    if (!borrado)
-      return res
-        .status(404)
-        .json({ mensaje: 'Producto no encontrado.' });
+    if (!borrado) return res.status(404).json({ mensaje: 'Producto no encontrado.' });
     res.json(borrado);
   } catch (err) {
     console.error('Error borrando producto:', err);
@@ -482,9 +416,7 @@ app.get('/api/clientes', (req, res) => {
 app.post('/api/clientes', (req, res) => {
   const { nombre, telefono, zona, notas } = req.body || {};
   if (!nombre) {
-    return res
-      .status(400)
-      .json({ mensaje: 'Nombre es obligatorio.' });
+    return res.status(400).json({ mensaje: 'Nombre es obligatorio.' });
   }
   const c = {
     id: nextIds.cliente++,
@@ -517,13 +449,10 @@ app.post('/api/ventas', async (req, res) => {
       detalle
     } = req.body || {};
 
-    const fechaFinal =
-      fecha || new Date().toISOString().slice(0, 10);
+    const fechaFinal = fecha || new Date().toISOString().slice(0, 10);
     const totalNum = Number(total) || 0;
     const porc = Number(comision_porcentaje) || 0;
-    const comision_calculada = Math.round(
-      (totalNum * porc) / 100
-    );
+    const comision_calculada = Math.round((totalNum * porc) / 100);
 
     let cliId = cliente_id ? Number(cliente_id) : null;
     let cliNombre = cliente_texto || '';
@@ -546,30 +475,23 @@ app.post('/api/ventas', async (req, res) => {
 
     // Descontar stock si corresponde (ahora en Mongo)
     let prodId = producto_id ? Number(producto_id) : null;
-    let cantDesc =
-      cantidad_producto ? Number(cantidad_producto) : 0;
+    let cantDesc = cantidad_producto ? Number(cantidad_producto) : 0;
     if (prodId && cantDesc > 0) {
       try {
         const p = await Producto.findOne({ id: prodId });
         if (p) {
-          const stockActual =
-            typeof p.stock === 'number' ? p.stock : 0;
+          const stockActual = typeof p.stock === 'number' ? p.stock : 0;
           p.stock = Math.max(0, stockActual - cantDesc);
           await p.save();
         }
       } catch (errStock) {
-        console.error(
-          'Error actualizando stock desde venta:',
-          errStock
-        );
+        console.error('Error actualizando stock desde venta:', errStock);
       }
     }
 
     const v = {
       id: nextIds.venta++,
-      revendedor_id: revendedor_id
-        ? Number(revendedor_id)
-        : null,
+      revendedor_id: revendedor_id ? Number(revendedor_id) : null,
       revendedor_nombre: revendedor_nombre || '',
       fecha: fechaFinal,
       total: totalNum,
@@ -595,35 +517,26 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
 
 async function llamarIA(prompt, maxOutputTokens) {
   if (!OPENAI_API_KEY) {
-    console.warn(
-      '⚠️ No hay OPENAI_API_KEY configurada. Usando IA básica de fallback.'
-    );
+    console.warn('⚠️ No hay OPENAI_API_KEY configurada. Usando IA básica de fallback.');
     return null;
   }
 
   try {
-    const resp = await fetch(
-      'https://api.openai.com/v1/responses',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: 'Bearer ' + OPENAI_API_KEY
-        },
-        body: JSON.stringify({
-          model: 'gpt-5.1-mini',
-          input: prompt,
-          max_output_tokens: maxOutputTokens || 256
-        })
-      }
-    );
+    const resp = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: 'Bearer ' + OPENAI_API_KEY
+      },
+      body: JSON.stringify({
+        model: 'gpt-5.1-mini',
+        input: prompt,
+        max_output_tokens: maxOutputTokens || 256
+      })
+    });
 
     if (!resp.ok) {
-      console.error(
-        'Error HTTP IA:',
-        resp.status,
-        await resp.text()
-      );
+      console.error('Error HTTP IA:', resp.status, await resp.text());
       return null;
     }
 
@@ -637,8 +550,7 @@ async function llamarIA(prompt, maxOutputTokens) {
 
 // IA para DESCRIPCIÓN de PRODUCTO
 app.post('/api/ia/descripcion-producto', async (req, res) => {
-  const { nombre, categoria, detalles, colores, tamanos } =
-    req.body || {};
+  const { nombre, categoria, detalles, colores, tamanos } = req.body || {};
 
   const prompt =
     'Sos el redactor de fichas de producto de un catálogo de bazar. ' +
@@ -698,21 +610,14 @@ app.post('/api/ia/campania', async (req, res) => {
   for (const bloque of secciones) {
     const b = bloque.trim();
     if (!b) continue;
-    if (
-      b.toUpperCase().startsWith('TÍTULO') ||
-      b.toUpperCase().startsWith('TITULO')
-    ) {
-      partes.titulo = b
-        .replace(/^T[ÍI]TULO:\s*/i, '')
-        .trim();
+    if (b.toUpperCase().startsWith('TÍTULO') || b.toUpperCase().startsWith('TITULO')) {
+      partes.titulo = b.replace(/^T[ÍI]TULO:\s*/i, '').trim();
     } else if (b.toUpperCase().startsWith('TEXTO')) {
       partes.cuerpo = b.replace(/^TEXTO:\s*/i, '').trim();
     } else if (b.toUpperCase().startsWith('CTA')) {
       partes.cta = b.replace(/^CTA:\s*/i, '').trim();
     } else if (b.toUpperCase().startsWith('HASHTAGS')) {
-      partes.hashtags = b
-        .replace(/^HASHTAGS:\s*/i, '')
-        .trim();
+      partes.hashtags = b.replace(/^HASHTAGS:\s*/i, '').trim();
     }
   }
 
@@ -736,7 +641,5 @@ app.get('/admin', (req, res) => {
 
 // --------- ARRANQUE DEL SERVIDOR ----------
 app.listen(PORT, () => {
-  console.log(
-    'Punto Bazar escuchando en http://localhost:' + PORT
-  );
+  console.log('Punto Bazar escuchando en http://localhost:' + PORT);
 });

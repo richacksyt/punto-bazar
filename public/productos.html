@@ -88,6 +88,13 @@
       font-size: 0.85rem;
       margin-top: 0.35rem;
     }
+    .row-inline {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+    }
   </style>
 </head>
 <body>
@@ -128,6 +135,15 @@
 
     <div id="status-imagen"></div>
 
+    <!-- 🔥 OFERTA -->
+    <div class="row-inline">
+      <input type="checkbox" id="p-oferta-activa" />
+      <label for="p-oferta-activa" style="margin-top:0;">Marcar como oferta del día</label>
+    </div>
+
+    <label>Texto de oferta</label>
+    <input id="p-oferta-texto" placeholder="Ej: 10% OFF, 2x1, Regalo sorpresa" />
+
     <label>Descripción</label>
     <textarea id="p-descripcion" rows="3"></textarea>
 
@@ -164,6 +180,7 @@ function cargarProductos() {
             <th>Precio</th>
             <th>Stock</th>
             <th>Categoría</th>
+            <th>Oferta</th>
             <th>Activo</th>
             <th>Acciones</th>
           </tr>
@@ -178,6 +195,7 @@ function cargarProductos() {
             <td>$${Number(p.precio).toFixed(2)}</td>
             <td>${p.stock}</td>
             <td>${p.categoria}</td>
+            <td>${p.oferta_activa ? (p.oferta_texto || "Oferta") : "-"}</td>
             <td>${p.activo ? "✔️" : "❌"}</td>
             <td>
               <button data-id="${p.id}" data-rol="edit">Editar</button>
@@ -242,6 +260,8 @@ document.getElementById("btn-guardar").addEventListener("click", () => {
     tamanos: document.getElementById("p-tamanos").value,
     imagen_url: document.getElementById("p-imagen_url").value,
     descripcion: document.getElementById("p-descripcion").value,
+    oferta_activa: document.getElementById("p-oferta-activa").checked,
+    oferta_texto: document.getElementById("p-oferta-texto").value
   };
 
   const url = EDITANDO_ID
@@ -266,7 +286,13 @@ document.getElementById("btn-guardar").addEventListener("click", () => {
 function limpiarFormulario() {
   EDITANDO_ID = null;
   document.getElementById("form-titulo").innerText = "Nuevo producto";
-  document.querySelectorAll("input, textarea").forEach(e => e.value = "");
+  document.querySelectorAll("input, textarea").forEach(e => {
+    if (e.type === "checkbox") {
+      e.checked = false;
+    } else {
+      e.value = "";
+    }
+  });
   document.getElementById("status-imagen").innerHTML = "";
 }
 
@@ -299,6 +325,8 @@ document.getElementById("tabla-wrap").addEventListener("click", (e) => {
         document.getElementById("p-tamanos").value = (p.tamanos || []).join(", ");
         document.getElementById("p-imagen_url").value = p.imagen_url;
         document.getElementById("p-descripcion").value = p.descripcion || "";
+        document.getElementById("p-oferta-activa").checked = !!p.oferta_activa;
+        document.getElementById("p-oferta-texto").value = p.oferta_texto || "";
       });
   }
 
