@@ -201,6 +201,29 @@
       border-color: #a855f7;
       background: rgba(76, 29, 149, 0.6);
     }
+    /* Buscador */
+    .search-wrap {
+      margin: 0 0 .6rem;
+    }
+    .search-input {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 999px;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      background: #020617;
+      color: #e5e7eb;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.85rem;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .search-input::placeholder {
+      color: #6b7280;
+    }
+    .search-input:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.6);
+    }
     @media (max-width: 900px) {
       .cat-layout {
         grid-template-columns: minmax(0, 1fr);
@@ -220,9 +243,19 @@
   <div class="cat-layout">
     <main>
       <h1 style="font-size:1.3rem; margin:0 0 .3rem;">Catálogo Punto Bazar</h1>
-      <p style="font-size:0.9rem; color:#9ca3af; margin:0 0 .8rem;">
+      <p style="font-size:0.9rem; color:#9ca3af; margin:0 0 .4rem;">
         Elegí tus productos, armá el pedido y enviá por WhatsApp.
       </p>
+
+      <!-- 🔎 BUSCADOR -->
+      <div class="search-wrap">
+        <input
+          type="text"
+          id="busqueda"
+          class="search-input"
+          placeholder="Buscar por nombre, categoría o descripción..."
+        />
+      </div>
 
       <div class="chip-row" id="chip-categorias"></div>
 
@@ -275,6 +308,7 @@
 
     var todosProductos = [];
     var categoriaFiltro = 'Todos';
+    var terminoBusqueda = '';
     var carrito = cargarCarritoLS();
 
     var grid = document.getElementById('grid-productos');
@@ -284,6 +318,7 @@
     var btnVaciar = document.getElementById('btn-vaciar');
     var btnWspRicardo = document.getElementById('btn-wsp-ricardo');
     var btnWspEliseo = document.getElementById('btn-wsp-eliseo');
+    var inputBusqueda = document.getElementById('busqueda');
 
     function renderCategorias() {
       var cats = ['Todos'];
@@ -300,14 +335,27 @@
     }
 
     function renderProductos() {
+      var texto = (terminoBusqueda || '').trim().toLowerCase();
+
       var lista = todosProductos.filter(function (p) {
-        if (categoriaFiltro === 'Todos') return true;
-        return p.categoria === categoriaFiltro;
+        var okCat = (categoriaFiltro === 'Todos') || (p.categoria === categoriaFiltro);
+        if (!okCat) return false;
+        if (!texto) return true;
+
+        var nombre = (p.nombre || '').toLowerCase();
+        var cat = (p.categoria || '').toLowerCase();
+        var desc = (p.descripcion || '').toLowerCase();
+
+        return (
+          nombre.indexOf(texto) !== -1 ||
+          cat.indexOf(texto) !== -1 ||
+          desc.indexOf(texto) !== -1
+        );
       });
 
       if (!lista.length) {
         grid.innerHTML =
-          '<div style="grid-column:1/-1; text-align:center; color:#9ca3af;">No hay productos disponibles en esta categoría.</div>';
+          '<div style="grid-column:1/-1; text-align:center; color:#9ca3af;">No hay productos que coincidan con la búsqueda.</div>';
         return;
       }
 
@@ -318,7 +366,7 @@
           else if (p.stock <= 3) stockText = '¡ÚLTIMAS UNIDADES!';
         }
 
-        // 🔑 NUEVO: soportar varios posibles nombres de campo
+        // soportar varios posibles nombres de campo de imagen
         var urlImg = p.imagen_url || p.imagen || p.imagenUrl || '';
 
         return (
@@ -468,6 +516,12 @@
     btnWspEliseo.addEventListener('click', function () {
       var msg = armarMensajeWhatsApp();
       window.open('https://wa.me/543814020542?text=' + msg, '_blank');
+    });
+
+    // 🔎 Búsqueda
+    inputBusqueda.addEventListener('input', function (e) {
+      terminoBusqueda = e.target.value || '';
+      renderProductos();
     });
 
     (function init() {
